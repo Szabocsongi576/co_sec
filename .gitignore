@@ -1,0 +1,10 @@
+### macOS ###
+.DS_Store
+
+# Executables
+*.exe
+*.out
+*.app
+
+### VisualStudioCode ###
+.vscode/*
