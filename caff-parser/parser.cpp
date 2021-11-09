@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <cstring>
 #include <Magick++.h>
 
 int64_t convertBytesToFixedInt(const char* bytes, int size) {
@@ -273,8 +274,6 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    int fileSize;
-
     std::ifstream file(fileName, std::ios::in | std::ios::binary);
     if (!file.good()) {
         std::cerr << "Failed to open file.";
@@ -282,6 +281,7 @@ int main(int argc, char* argv[]) {
     }
 
     // get file size
+    unsigned int fileSize;
     file.seekg(0, std::ios::end);
     fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -376,22 +376,21 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Parse successful." << std::endl;
 
-    Magick::InitializeMagick(argv[0]);
+    Magick::InitializeMagick(nullptr);
 
     std::vector<Magick::Image> images(header.numberOfAnimations);
     for (int i = 0; i < header.numberOfAnimations; i++) {
         unsigned int width = animations[i].image.width;
         unsigned int height = animations[i].image.height;
         Magick::StorageType storageType = Magick::CharPixel;
-        std::vector<unsigned char> pixels(animations[i].image.contentSize);
-        for (int j = 0; j < animations[i].image.contentSize / 3; j++) {
+        std::vector<unsigned char> pixels;
+        for (unsigned int j = 0; j < width * height; j++) {
             pixels.push_back(animations[i].image.pixels[j].r);
             pixels.push_back(animations[i].image.pixels[j].g);
             pixels.push_back(animations[i].image.pixels[j].b);
         }
 
-        const unsigned char* pixelsPointer = &pixels[0];
-        Magick::Image image(width, height, "RGB", storageType, pixelsPointer);
+        Magick::Image image(width, height, "RGB", storageType, pixels.data());
         image.animationDelay(animations[i].duration / 10);
 
         images.push_back(image);
