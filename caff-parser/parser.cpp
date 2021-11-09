@@ -2,7 +2,7 @@
 #include <fstream>
 #include <vector>
 #include <cstring>
-#include <Magick++.h>
+#include "gif.h"
 
 int64_t convertBytesToFixedInt(const char* bytes, int size) {
     int64_t value = 0;
@@ -376,28 +376,31 @@ int main(int argc, char* argv[]) {
 
     std::cout << "Parse successful." << std::endl;
 
-    Magick::InitializeMagick(nullptr);
+    std::string gifFileName = fileName.substr(0, extensionPosition) + ".gif";
 
-    std::vector<Magick::Image> images(header.numberOfAnimations);
+    unsigned int width = animations[0].image.width;
+    unsigned int height = animations[0].image.height;
+    unsigned int delay = animations[0].duration / 10;
+
+    GifWriter g;
+    GifBegin(&g, gifFileName.c_str(), width, height, delay);
     for (int i = 0; i < header.numberOfAnimations; i++) {
-        unsigned int width = animations[i].image.width;
-        unsigned int height = animations[i].image.height;
-        Magick::StorageType storageType = Magick::CharPixel;
+        unsigned int currentWidth = animations[i].image.width;
+        unsigned int currentHeight = animations[i].image.height;
+        unsigned int currentDelay = animations[i].duration / 10;
         std::vector<unsigned char> pixels;
-        for (unsigned int j = 0; j < width * height; j++) {
+
+        for (unsigned int j = 0; j < currentWidth * currentHeight; j++) {
             pixels.push_back(animations[i].image.pixels[j].r);
             pixels.push_back(animations[i].image.pixels[j].g);
             pixels.push_back(animations[i].image.pixels[j].b);
+            pixels.push_back(0);
         }
 
-        Magick::Image image(width, height, "RGB", storageType, pixels.data());
-        image.animationDelay(animations[i].duration / 10);
-
-        images.push_back(image);
+        GifWriteFrame(&g, pixels.data(), currentWidth, currentHeight, currentDelay);
     }
 
-    std::string gifFileName = fileName.substr(0, extensionPosition) + ".gif";
-    writeImages(images.begin(), images.end(), gifFileName);
+    GifEnd(&g);
 
     std::cout << "Gif's name: " << gifFileName << std::endl;
 
