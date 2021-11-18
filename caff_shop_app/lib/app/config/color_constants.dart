@@ -7,4 +7,6 @@ class ColorConstants {
   static const Color white = Color(0xFFFFFFFF);
   static const Color black = Color(0xFF303030);
   static const Color error = Color(0xFFFF5555);
+  static const Color lightGrey = Color(0xFFEEEEEE);
+  static Color shadow = Colors.black.withOpacity(0.1);
 }

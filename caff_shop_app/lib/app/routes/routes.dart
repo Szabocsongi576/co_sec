@@ -31,7 +31,7 @@ class Routes {
           settings: settings,
           pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
           transitionDuration: Duration(milliseconds: 300),
-          transitionsBuilder: _slideTransitionsBuilder,
+          transitionsBuilder: _fadeTransitionsBuilder,
         );
       default:
         return null;
