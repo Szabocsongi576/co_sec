@@ -1,3 +1,28 @@
 {
-
+  "error": {
+    "field_is_empty": "A mező kitöltése kötelező",
+    "invalid_content": "A mező kitöltése nem érvényes",
+    "passwords_different": "A jelszavak nem egyeznek"
+  },
+  "appbar": {
+    "login": "Bejelentkezés",
+    "register": "Regisztráció",
+    "caff_browser": "CAFF böngésző",
+    "profile": "profile",
+    "users": "Felhasználók"
+  },
+  "hint": {
+    "email": "Email",
+    "password": "Jelszó",
+    "password_confirmation": "Jelszó megerősítése",
+    "username": "Felhasználónév"
+  },
+  "caption": {
+    "dont_have_acc": "Nincs még fiókod?",
+    "registration": "Regisztrálj"
+  },
+  "button": {
+    "login": "Bejelentkezés",
+    "register": "Regisztráció"
+  }
 }
