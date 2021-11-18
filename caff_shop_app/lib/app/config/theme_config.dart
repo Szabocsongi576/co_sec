@@ -20,6 +20,21 @@ class ThemeConfig {
         onError: ColorConstants.white,
         brightness: Brightness.light,
       ),
+      appBarTheme: AppBarTheme(
+        color: ColorConstants.primary,
+        elevation: 10.r,
+        centerTitle: true,
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: ButtonStyle(
+          padding: MaterialStateProperty.all(
+            EdgeInsets.symmetric(
+              horizontal: 10.w,
+              vertical: 0.h,
+            ),
+          ),
+        ),
+      ),
       fontFamily: 'Poppins',
       textTheme: TextTheme(
         headline1: TextStyle(
@@ -40,12 +55,12 @@ class ThemeConfig {
         subtitle1: TextStyle(
           color: ColorConstants.black,
           fontSize: 18.sp * 1.2,
-          fontWeight: FontWeight.w400,
+          fontWeight: FontWeight.normal,
         ),
         subtitle2: TextStyle(
           color: ColorConstants.black,
           fontSize: 16.sp * 1.2,
-          fontWeight: FontWeight.w700,
+          fontWeight: FontWeight.normal,
         ),
         bodyText1: TextStyle(
           color: ColorConstants.black,

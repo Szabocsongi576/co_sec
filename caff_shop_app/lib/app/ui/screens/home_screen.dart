@@ -28,13 +28,13 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
         }
         return true;
       },
-      child: MultiProvider(
+      child: /*MultiProvider(
         providers: [
-          /*Provider<LoginResponse>(
+          Provider<LoginResponse>(
             create: (_) => widget.loginResponse,
-          ),*/
+          ),
         ],
-        child: Scaffold(
+        child:*/ Scaffold(
           appBar: AppBar(),
           body: Navigator(
             key: _navigatorKey,
@@ -42,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
             onGenerateRoute: HomeRoutes.onGenerateRoute,
           ),
         ),
-      ),
+      //),
     );
   }
 }
