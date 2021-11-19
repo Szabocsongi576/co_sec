@@ -34,38 +34,40 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Widget build(BuildContext context) {
     return Loading(
       store: _store.loadingStore,
+      isExpandable: true,
       appBar: AppBar(
         title: Text(tr('appbar.register')),
         automaticallyImplyLeading: true,
       ),
-      body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(20.r),
-          child: Center(
-            child: _buildRegisterArea(),
-          ),
+      body: Container(
+        padding: EdgeInsets.all(20.r),
+        child: Center(
+          child: _buildRegisterArea(),
         ),
       ),
     );
   }
 
   Widget _buildRegisterArea() {
-    return Card(
-      child: Container(
-        padding: EdgeInsets.all(20.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildUsername(),
-            SizedBox(height: 15.h),
-            _buildEmail(),
-            SizedBox(height: 15.h),
-            _buildPassword(),
-            SizedBox(height: 15.h),
-            _buildPasswordConfirmation(),
-            SizedBox(height: 25.h),
-            _buildRegisterButton(),
-          ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: Card(
+        child: Container(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildUsername(),
+              SizedBox(height: 15.h),
+              _buildEmail(),
+              SizedBox(height: 15.h),
+              _buildPassword(),
+              SizedBox(height: 15.h),
+              _buildPasswordConfirmation(),
+              SizedBox(height: 25.h),
+              _buildRegisterButton(),
+            ],
+          ),
         ),
       ),
     );
