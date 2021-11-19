@@ -1,6 +1,5 @@
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
-import 'package:caff_shop_app/app/ui/widget/scroll_column_expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,15 +8,16 @@ class Loading extends StatelessWidget {
   final LoadingStore store;
 
   final Widget body;
-  final Widget? appBar;
-  final bool enableScrolling;
+  final PreferredSizeWidget? appBar;
+
+  final bool isExpandable;
 
   const Loading({
     Key? key,
     required this.store,
     this.appBar,
     required this.body,
-    this.enableScrolling = true,
+    this.isExpandable = false,
   }) : super(key: key);
 
   @override
@@ -25,63 +25,61 @@ class Loading extends StatelessWidget {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
-        body: SingleChildScrollView(
-          child: Container(
-            height: 1.sh,
-            child: Column(
-              children: [
-                if (appBar != null)
-                  Stack(
-                    children: [
-                      appBar!,
-                      Observer(
-                        builder: (_) {
-                          if (store.stackedLoading) {
-                            return Container(
-                              color: ColorConstants.black.withOpacity(0.3),
-                            );
-                          } else {
-                            return Container();
-                          }
+        appBar: appBar,
+        body: SafeArea(
+          child: Stack(
+            children: [
+              Observer(
+                builder: (_) {
+                  if (store.loading) {
+                    return _buildLoading();
+                  } else {
+                    if(isExpandable) {
+                      return LayoutBuilder(
+                        builder: (context, constraint) {
+                          return ScrollConfiguration(
+                            behavior: ScrollBehavior().copyWith(
+                              overscroll: false,
+                            ),
+                            child: SingleChildScrollView(
+                              child: ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: constraint.maxHeight,
+                                ),
+                                child: IntrinsicHeight(
+                                  child: body,
+                                ),
+                              ),
+                            ),
+                          );
                         },
-                      ),
-                    ],
-                  ),
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Observer(
-                        builder: (_) {
-                          if (store.loading) {
-                            return _buildLoading();
-                          } else {
-                            if (enableScrolling) {
-                              return ScrollExpandable(
-                                child: body,
-                              );
-                            } else {
-                              return body;
-                            }
-                          }
-                        },
-                      ),
-                      Observer(
-                        builder: (_) {
-                          if (store.stackedLoading) {
-                            return Container(
-                              color: ColorConstants.black.withOpacity(0.3),
-                              child: _buildLoading(),
-                            );
-                          } else {
-                            return Container();
-                          }
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+                      );
+                    } else {
+                      return ScrollConfiguration(
+                        behavior: ScrollBehavior().copyWith(
+                          overscroll: false,
+                        ),
+                        child: SingleChildScrollView(
+                          child: body,
+                        ),
+                      );
+                    }
+                  }
+                },
+              ),
+              Observer(
+                builder: (_) {
+                  if (store.stackedLoading) {
+                    return Container(
+                      color: ColorConstants.black.withOpacity(0.3),
+                      child: _buildLoading(),
+                    );
+                  } else {
+                    return Container();
+                  }
+                },
+              ),
+            ],
           ),
         ),
       ),

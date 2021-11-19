@@ -31,38 +31,40 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Loading(
       store: _store.loadingStore,
+      isExpandable: true,
       appBar: AppBar(
         title: Text(tr('appbar.login')),
       ),
-      body: SafeArea(
-        child: Container(
-          padding: EdgeInsets.all(20.r),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              SizedBox(),
-              _buildLoginArea(),
-              _buildRegisterArea(),
-            ],
-          ),
+      body: Container(
+        padding: EdgeInsets.all(20.r),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            SizedBox(),
+            _buildLoginArea(),
+            _buildRegisterArea(),
+          ],
         ),
       ),
     );
   }
 
   Widget _buildLoginArea() {
-    return Card(
-      child: Container(
-        padding: EdgeInsets.all(20.r),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildEmail(),
-            SizedBox(height: 15.h),
-            _buildPassword(),
-            SizedBox(height: 25.h),
-            _buildLoginButton(),
-          ],
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: Card(
+        child: Container(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildEmail(),
+              SizedBox(height: 15.h),
+              _buildPassword(),
+              SizedBox(height: 25.h),
+              _buildLoginButton(),
+            ],
+          ),
         ),
       ),
     );
@@ -132,41 +134,44 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildRegisterArea() {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                tr('caption.dont_have_acc'),
-                style: Theme.of(context).textTheme.subtitle2!.copyWith(
-                  fontWeight: FontWeight.w400,
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 20.h),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  tr('caption.dont_have_acc'),
+                  style: Theme.of(context).textTheme.subtitle2!.copyWith(
+                    fontWeight: FontWeight.w400,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
-        ),
-        //SizedBox(height: 5.h),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextButton(
-              onPressed: _onRegisterTap,
-              child: Text(
-                tr('caption.registration'),
-                style: Theme.of(context).textTheme.subtitle1!.copyWith(
-                  color: ColorConstants.primary,
-                  fontWeight: FontWeight.w700,
+            ],
+          ),
+          //SizedBox(height: 5.h),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextButton(
+                onPressed: _onRegisterTap,
+                child: Text(
+                  tr('caption.registration'),
+                  style: Theme.of(context).textTheme.subtitle1!.copyWith(
+                    color: ColorConstants.primary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                textAlign: TextAlign.center,
               ),
-            ),
-          ],
-        ),
-      ],
+            ],
+          ),
+        ],
+      ),
     );
   }
 

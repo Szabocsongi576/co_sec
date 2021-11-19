@@ -35,7 +35,6 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
           ),
         ],
         child:*/ Scaffold(
-          appBar: AppBar(),
           body: Navigator(
             key: _navigatorKey,
             initialRoute: HomeRoutes.fileList,
