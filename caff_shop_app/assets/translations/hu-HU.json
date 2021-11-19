@@ -15,7 +15,8 @@
     "email": "Email",
     "password": "Jelszó",
     "password_confirmation": "Jelszó megerősítése",
-    "username": "Felhasználónév"
+    "username": "Felhasználónév",
+    "search": "Keresés..."
   },
   "caption": {
     "dont_have_acc": "Nincs még fiókod?",
