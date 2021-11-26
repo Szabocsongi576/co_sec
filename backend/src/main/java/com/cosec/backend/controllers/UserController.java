@@ -2,18 +2,18 @@ package com.cosec.backend.controllers;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
 
-import com.cosec.backend.models.Role;
-import com.cosec.backend.models.RoleType;
-import com.cosec.backend.models.User;
+import com.cosec.backend.models.*;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
 import com.cosec.backend.payload.response.JwtResponse;
 import com.cosec.backend.payload.response.MessageResponse;
+import com.cosec.backend.repository.CaffRepository;
 import com.cosec.backend.repository.RoleRepository;
 import com.cosec.backend.repository.UserRepository;
 import com.cosec.backend.security.jwt.JwtUtils;
@@ -25,16 +25,13 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/auth")
-public class AuthController {
+@RequestMapping("/users")
+public class UserController {
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -50,7 +47,49 @@ public class AuthController {
     @Autowired
     JwtUtils jwtUtils;
 
-    @PostMapping("/signin")
+    CaffRepository caffRepository;
+
+    @GetMapping("/all")
+    public List<User> getAll(){
+        List<User> users = this.userRepository.findAll();
+        return users;
+    }
+
+    @GetMapping("/{id}")
+    public Optional<User> getUserById(@PathVariable("id") String id){
+        Optional<User> user = this.userRepository.findById(id);
+        return user;
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteUserById(@PathVariable("id") String id){
+        this.userRepository.deleteById(id);
+        this.caffRepository.deleteAllByUserId(id);
+    }
+
+    @PutMapping("/{id}")
+    public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
+        Optional<User> user = userRepository.findById(id);
+        user.get().setId(userDetails.getId());
+        user.get().setUsername(userDetails.getUsername());
+        user.get().setEmail(userDetails.getEmail());
+        user.get().setPassword(userDetails.getPassword());
+
+    }
+
+    @GetMapping("/{id}/caffs")
+    public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
+        List<Caff> caffs = this.caffRepository.getAllByUserId(id);
+        return caffs;
+    }
+
+    //TODO Szatya csinálja
+    @PostMapping("/{id}/caffs/")
+    public void createCaff(@PathVariable("id") String id, @Valid @RequestBody Caff caffDetails){
+
+    }
+
+    @PostMapping("/auth/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody Login loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -71,7 +110,7 @@ public class AuthController {
                 roles));
     }
 
-    @PostMapping("/signup")
+    @PostMapping("/auth/registration")
     public ResponseEntity<?> registerUser(@Valid @RequestBody Registration signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
