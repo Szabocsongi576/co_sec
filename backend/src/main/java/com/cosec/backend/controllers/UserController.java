@@ -61,6 +61,12 @@ public class UserController {
         return user;
     }
 
+    @GetMapping("/{id}/caffs")
+    public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
+        List<Caff> caffs = this.caffRepository.getAllByUserId(id);
+        return caffs;
+    }
+
     @DeleteMapping("/{id}")
     public void deleteUserById(@PathVariable("id") String id){
         this.userRepository.deleteById(id);
@@ -75,12 +81,6 @@ public class UserController {
         user.get().setEmail(userDetails.getEmail());
         user.get().setPassword(userDetails.getPassword());
 
-    }
-
-    @GetMapping("/{id}/caffs")
-    public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
-        List<Caff> caffs = this.caffRepository.getAllByUserId(id);
-        return caffs;
     }
 
     //TODO Szatya csinálja

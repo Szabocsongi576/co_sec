@@ -2,7 +2,6 @@ package com.cosec.backend.controllers;
 
 import com.cosec.backend.models.Caff;
 import com.cosec.backend.models.Comment;
-import com.cosec.backend.models.User;
 import com.cosec.backend.repository.CaffRepository;
 import com.cosec.backend.repository.CommentRepository;
 import org.springframework.web.bind.annotation.*;
@@ -38,6 +37,12 @@ public class CaffController {
     public List<Comment> getAllComment(@PathVariable("id") String id){
         List<Comment> comments = this.commentRepository.findAllByCaffId(id);
         return comments;
+    }
+
+    @PostMapping("/comments")
+    public Comment createComment(@RequestBody Comment comment){
+        this.commentRepository.save(comment);
+        return comment;
     }
 
     @DeleteMapping("/{id}")
