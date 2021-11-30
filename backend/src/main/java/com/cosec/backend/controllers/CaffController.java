@@ -35,11 +35,13 @@ public class CaffController {
         return caff;
     }
 
+    /*
     @GetMapping("/unauth/{id}/download")
     public Binary downloadCaffById(@PathVariable("id") String id){
         Optional<Caff> caff = this.caffRepository.findById(id);
         return caff.get().getData();
     }
+    */
 
     @GetMapping("/unauth/search")
     public List<Caff> searchCaffByName(@Valid @RequestBody String name){

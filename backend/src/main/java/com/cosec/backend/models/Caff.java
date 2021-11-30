@@ -1,8 +1,12 @@
 package com.cosec.backend.models;
 
+import com.cosec.backend.payload.request.CaffRequest;
+import org.bson.BsonBinarySubType;
 import org.bson.types.Binary;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+
+import java.io.IOException;
 
 @Document(collection = "caffs")
 public class Caff {
@@ -17,6 +21,16 @@ public class Caff {
         this.userId = userId;
         this.name = name;
         this.data = data;
+    }
+
+    public Caff(String userId, CaffRequest paramCaff) {
+        this.userId = userId;
+        this.name = paramCaff.getName();
+        try {
+            this.data = new Binary(BsonBinarySubType.BINARY, paramCaff.getData().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public String getId() {
