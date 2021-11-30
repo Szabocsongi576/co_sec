@@ -18,19 +18,28 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 
 @RestController
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RequestMapping("caffs")
 public class CaffController {
 
+    Logger logger = Logger.getLogger("MyLog");
+    FileHandler fh;
+
     @Autowired
     private CaffRepository caffRepository;
     @Autowired
     private CommentRepository commentRepository;
 
-    public CaffController(CaffRepository caffRepository) {
-        this.caffRepository = caffRepository;
+    public CaffController() throws IOException {
+        fh = new FileHandler("C:/work/MyLogFile.log");
+        logger.addHandler(fh);
+        SimpleFormatter formatter = new SimpleFormatter();
+        fh.setFormatter(formatter);
     }
 
     @GetMapping("/unauth/all")
