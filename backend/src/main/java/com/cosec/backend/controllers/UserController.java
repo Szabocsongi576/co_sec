@@ -49,31 +49,31 @@ public class UserController {
 
     CaffRepository caffRepository;
 
-    @GetMapping("/all")
+    @GetMapping("/admin/all")
     public List<User> getAll(){
         List<User> users = this.userRepository.findAll();
         return users;
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/auth/{id}")
     public Optional<User> getUserById(@PathVariable("id") String id){
         Optional<User> user = this.userRepository.findById(id);
         return user;
     }
 
-    @GetMapping("/{id}/caffs")
+    @GetMapping("/auth/{id}/caffs")
     public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
         List<Caff> caffs = this.caffRepository.getAllByUserId(id);
         return caffs;
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/admin/{id}")
     public void deleteUserById(@PathVariable("id") String id){
         this.userRepository.deleteById(id);
         this.caffRepository.deleteAllByUserId(id);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/admin/{id}")
     public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
         Optional<User> user = userRepository.findById(id);
         user.get().setId(userDetails.getId());
@@ -84,12 +84,12 @@ public class UserController {
     }
 
     //TODO Szatya csinálja
-    @PostMapping("/{id}/caffs/")
+    @PostMapping("/auth/{id}/caffs/")
     public void createCaff(@PathVariable("id") String id, @Valid @RequestBody Caff caffDetails){
 
     }
 
-    @PostMapping("/auth/login")
+    @PostMapping("/unauth/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody Login loginRequest) {
 
         Authentication authentication = authenticationManager.authenticate(
@@ -110,7 +110,7 @@ public class UserController {
                 roles));
     }
 
-    @PostMapping("/auth/registration")
+    @PostMapping("/unauth/registration")
     public ResponseEntity<?> registerUser(@Valid @RequestBody Registration signUpRequest) {
         if (userRepository.existsByUsername(signUpRequest.getUsername())) {
             return ResponseEntity
