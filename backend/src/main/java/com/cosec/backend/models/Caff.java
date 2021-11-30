@@ -17,6 +17,9 @@ public class Caff {
     private String name;
     private Binary data;
 
+    public Caff() {
+    }
+
     public Caff(String userId, String name, Binary data) {
         this.userId = userId;
         this.name = name;
