@@ -13,4 +13,6 @@ public interface CaffRepository extends MongoRepository<Caff, String> {
     void deleteAllByUserId(String userId);
 
     List<Caff> getAllByUserId(String userId);
+
+    List<Caff> findByName(String name);
 }
