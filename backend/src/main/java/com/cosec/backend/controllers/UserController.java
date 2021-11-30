@@ -1,5 +1,6 @@
 package com.cosec.backend.controllers;
 
+import java.io.IOException;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -9,6 +10,7 @@ import java.util.stream.Collectors;
 import javax.validation.Valid;
 
 import com.cosec.backend.models.*;
+import com.cosec.backend.payload.request.CaffRequest;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
 import com.cosec.backend.payload.response.JwtResponse;
@@ -18,6 +20,8 @@ import com.cosec.backend.repository.RoleRepository;
 import com.cosec.backend.repository.UserRepository;
 import com.cosec.backend.security.jwt.JwtUtils;
 import com.cosec.backend.security.services.UserDetailsImpl;
+import org.bson.BsonBinarySubType;
+import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -26,6 +30,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -47,6 +52,7 @@ public class UserController {
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
     CaffRepository caffRepository;
 
     @GetMapping("/admin/all")
@@ -83,10 +89,13 @@ public class UserController {
 
     }
 
-    //TODO Szatya csinálja
     @PostMapping("/auth/{id}/caffs/")
-    public void createCaff(@PathVariable("id") String id, @Valid @RequestBody Caff caffDetails){
-
+    public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
+        Caff newCaff = new Caff(id,paramCaff);
+        caffRepository.save(newCaff);
+        return ResponseEntity
+                .ok()
+                .body(new MessageResponse("Added Caff to Database!"));
     }
 
     @PostMapping("/unauth/login")
