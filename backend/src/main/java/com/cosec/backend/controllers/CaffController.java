@@ -5,11 +5,14 @@ import com.cosec.backend.models.Comment;
 import com.cosec.backend.payload.response.CaffResponse;
 import com.cosec.backend.repository.CaffRepository;
 import com.cosec.backend.repository.CommentRepository;
+import com.cosec.backend.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -36,10 +39,15 @@ public class CaffController {
     private CommentRepository commentRepository;
 
     public CaffController() throws IOException {
-        fh = new FileHandler("C:/work/MyLogFile.log");
+        fh = new FileHandler("C:/work/CaffController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);
+    }
+
+    private UserDetailsImpl getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (UserDetailsImpl) authentication.getPrincipal();
     }
 
     @GetMapping("/unauth/all")
@@ -81,18 +89,21 @@ public class CaffController {
 
     @PostMapping("/auth/comments")
     public Comment createComment(@RequestBody Comment comment){
+        logger.info(String.format("USER %s(%s) Created Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),comment.getId()));
         this.commentRepository.save(comment);
         return comment;
     }
 
     @DeleteMapping("/admin/{id}")
     public void deleteCaffById(@PathVariable("id") String id){
+        logger.info(String.format("ADMIN %s(%s) Deleted Caff(%s) and related comments.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         this.caffRepository.deleteById(id);
         this.commentRepository.deleteAllByCaffId(id);
     }
 
     @DeleteMapping("/admin/comments/{commentId}")
     public void deleteCommentById(@PathVariable("commentId") String commentId){
+        logger.info(String.format("ADMIN %s(%s) Deleted Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),commentId));
         this.commentRepository.deleteById(commentId);
     }
 

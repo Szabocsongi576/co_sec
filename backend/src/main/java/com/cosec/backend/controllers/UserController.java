@@ -63,38 +63,48 @@ public class UserController {
     CaffRepository caffRepository;
 
     UserController() throws IOException {
-        fh = new FileHandler("C:/work/MyLogFile.log");
+        fh = new FileHandler("C:/work/UserController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);
     }
 
+    private UserDetailsImpl getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        return (UserDetailsImpl) authentication.getPrincipal();
+    }
+
     @GetMapping("/admin/all")
     public List<User> getAll(){
+        logger.info(String.format("ADMIN %s(%s) requested all Users.",getCurrentUser().getUsername(),getCurrentUser().getId()));
         List<User> users = this.userRepository.findAll();
         return users;
     }
 
-    @GetMapping("/auth/{id}")
+    @GetMapping("/admin/{id}")
     public Optional<User> getUserById(@PathVariable("id") String id){
+        logger.info(String.format("ADMIN %s(%s) requested User(%s)'s data.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         Optional<User> user = this.userRepository.findById(id);
         return user;
     }
 
     @GetMapping("/auth/{id}/caffs")
     public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
+        logger.info(String.format("USER %s(%s) requested Caffs of User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         List<Caff> caffs = this.caffRepository.getAllByUserId(id);
         return caffs;
     }
 
     @DeleteMapping("/admin/{id}")
     public void deleteUserById(@PathVariable("id") String id){
+        logger.info(String.format("ADMIN %s(%s) deleted User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         this.userRepository.deleteById(id);
         this.caffRepository.deleteAllByUserId(id);
     }
 
     @PutMapping("/admin/{id}")
     public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
+        logger.info(String.format("ADMIN %s(%s) updated User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         Optional<User> user = userRepository.findById(id);
         user.get().setId(userDetails.getId());
         user.get().setUsername(userDetails.getUsername());
@@ -105,6 +115,7 @@ public class UserController {
 
     @PostMapping("/auth/{id}/caffs/")
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
+        logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         Caff newCaff = new Caff(id,paramCaff);
         caffRepository.save(newCaff);
         return ResponseEntity
