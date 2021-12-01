@@ -104,13 +104,13 @@ public class UserController {
 
     @PutMapping("/admin/{id}")
     public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
-        logger.info(String.format("ADMIN %s(%s) updated User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
-        Optional<User> user = userRepository.findById(id);
-        user.get().setId(userDetails.getId());
-        user.get().setUsername(userDetails.getUsername());
-        user.get().setEmail(userDetails.getEmail());
-        user.get().setPassword(userDetails.getPassword());
-
+        if(userRepository.existsById(userDetails.getId())) {
+            userRepository.save(userDetails);
+            logger.info(String.format("ADMIN %s(%s) updated User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+        }
+        else{
+            logger.info(String.format("ADMIN %s(%s) try to update User(%s), but User does not exist.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+        }
     }
 
     @PostMapping("/auth/{id}/caffs/")
