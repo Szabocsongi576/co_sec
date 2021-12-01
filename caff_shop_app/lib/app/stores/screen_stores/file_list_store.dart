@@ -6,7 +6,9 @@ part 'file_list_store.g.dart';
 class FileListStore = _FileListStore with _$FileListStore;
 
 abstract class _FileListStore with Store {
-  final LoadingStore loadingStore = LoadingStore();
+  final LoadingStore loadingStore = LoadingStore(
+    loading: true,
+  );
 
   // store variables:-----------------------------------------------------------
   @observable
@@ -36,4 +38,5 @@ abstract class _FileListStore with Store {
   }
 
   // general methods:-----------------------------------------------------------
+
 }

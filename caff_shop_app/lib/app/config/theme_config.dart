@@ -35,6 +35,9 @@ class ThemeConfig {
           ),
         ),
       ),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: ColorConstants.primary,
+      ),
       fontFamily: 'Poppins',
       textTheme: TextTheme(
         headline1: TextStyle(
