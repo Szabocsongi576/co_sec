@@ -104,8 +104,17 @@ public class UserController {
 
     @PutMapping("/admin/{id}")
     public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
-        if(userRepository.existsById(userDetails.getId())) {
-            userRepository.save(userDetails);
+        if(userRepository.existsById(id)) {
+            User toEdit = userRepository.findById(id).get();
+            if(userDetails.getEmail() != null)
+                toEdit.setEmail(userDetails.getEmail());
+            if(userDetails.getUsername() != null)
+                toEdit.setUsername(userDetails.getUsername());
+            if(userDetails.getPassword() != null)
+                toEdit.setPassword(userDetails.getPassword());
+            if(userDetails.getRoles().size() != 0)
+                toEdit.setRoles(userDetails.getRoles());
+            userRepository.save(toEdit);
             logger.info(String.format("ADMIN %s(%s) updated User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         }
         else{
