@@ -5,6 +5,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
 import java.util.stream.Collectors;
 
 import javax.validation.Valid;
@@ -37,6 +40,10 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/users")
 public class UserController {
 
+    Logger logger = Logger.getLogger("MyLog");
+    FileHandler fh;
+
+
     @Autowired
     AuthenticationManager authenticationManager;
 
@@ -54,6 +61,13 @@ public class UserController {
 
     @Autowired
     CaffRepository caffRepository;
+
+    UserController() throws IOException {
+        fh = new FileHandler("C:/work/MyLogFile.log");
+        logger.addHandler(fh);
+        SimpleFormatter formatter = new SimpleFormatter();
+        fh.setFormatter(formatter);
+    }
 
     @GetMapping("/admin/all")
     public List<User> getAll(){
