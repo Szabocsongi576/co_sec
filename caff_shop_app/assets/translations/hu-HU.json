@@ -8,7 +8,7 @@
     "login": "Bejelentkezés",
     "register": "Regisztráció",
     "caff_browser": "CAFF böngésző",
-    "profile": "profile",
+    "profile": "Profil",
     "users": "Felhasználók"
   },
   "hint": {
@@ -16,7 +16,9 @@
     "password": "Jelszó",
     "password_confirmation": "Jelszó megerősítése",
     "username": "Felhasználónév",
-    "search": "Keresés..."
+    "search": "Keresés...",
+    "comment": "Megjegyzés",
+    "name": "File neve"
   },
   "caption": {
     "dont_have_acc": "Nincs még fiókod?",
@@ -24,6 +26,8 @@
   },
   "button": {
     "login": "Bejelentkezés",
-    "register": "Regisztráció"
-  }
+    "register": "Regisztráció",
+    "upload": "Feltöltés"
+  },
+  "add_file": "Válasszon ki egy fájlt!"
 }

@@ -9,7 +9,7 @@ class Loading extends StatelessWidget {
 
   final Widget body;
   final PreferredSizeWidget? appBar;
-
+  final Widget? floatingActionButton;
   final bool isExpandable;
 
   const Loading({
@@ -17,6 +17,7 @@ class Loading extends StatelessWidget {
     required this.store,
     this.appBar,
     required this.body,
+    this.floatingActionButton,
     this.isExpandable = false,
   }) : super(key: key);
 
@@ -82,6 +83,7 @@ class Loading extends StatelessWidget {
             ],
           ),
         ),
+        floatingActionButton: floatingActionButton,
       ),
     );
   }

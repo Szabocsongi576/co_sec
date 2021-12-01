@@ -1,8 +1,9 @@
-import 'dart:async';
-
 import 'package:caff_shop_app/app/config/color_constants.dart';
+import 'package:caff_shop_app/app/routes/home_routes.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_list_store.dart';
+import 'package:caff_shop_app/app/ui/widget/caff_list_item.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
+import 'package:caff_shop_app/app/ui/widget/upload_dialog.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -37,7 +38,7 @@ class _FileListScreenState extends State<FileListScreen> {
         title: Text(tr('appbar.caff_browser')),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: _onProfileTap,
             icon: Icon(Icons.person),
           ),
         ],
@@ -66,41 +67,29 @@ class _FileListScreenState extends State<FileListScreen> {
             ),
             SizedBox(height: 20.h),
             Observer(
-              builder: (_) =>
-                  GridView.count(
-                    primary: false,
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10.r,
-                    crossAxisSpacing: 10.r,
-                    children: _store.caffSrcList.map((String url) {
-                      return GridTile(
-                        child: Card(
-                          child: Container(
-                            padding: EdgeInsets.all(15.r),
-                            child: Center(
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Expanded(
-                                    child: Image.network(
-                                      url,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(height: 5.r),
-                                  Text("Sample.caff"),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
+              builder: (_) => GridView.count(
+                primary: false,
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 10.r,
+                crossAxisSpacing: 10.r,
+                children: _store.caffSrcList.map((String url) {
+                  return CaffListItem(
+                    url: url,
+                    onTap: () => _onItemTap(url),
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        child: Icon(
+          Icons.file_upload,
+          color: ColorConstants.white,
+        ),
+        onPressed: _onFABPressed,
       ),
       /*body: Loading(
         store: _store.loadingStore,
@@ -198,5 +187,20 @@ class _FileListScreenState extends State<FileListScreen> {
         content: Text(text),
       ),
     );
+  }
+
+  void _onItemTap(String url) {
+    Navigator.of(context).pushNamed(HomeRoutes.fileDetails, arguments: url);
+  }
+
+  Future<void> _onFABPressed() async {
+    await showDialog(
+        context: context,
+        builder: (context) => UploadDialog(),
+    );
+  }
+
+  void _onProfileTap() {
+    Navigator.of(context).pushNamed(HomeRoutes.profile);
   }
 }
