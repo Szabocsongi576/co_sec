@@ -26,7 +26,9 @@ class HomeRoutes {
       case fileDetails:
         return PageRouteBuilder<dynamic>(
           settings: settings,
-          pageBuilder: (context, animation, secondaryAnimation) => FileDetailsScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => FileDetailsScreen(
+            url: settings.arguments as String,
+          ),
           transitionDuration: Duration(milliseconds: 300),
           transitionsBuilder: _slideTransitionsBuilder,
         );
