@@ -1,10 +1,7 @@
 package com.cosec.backend.controllers;
 
-import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.io.*;
+import java.util.*;
 import java.util.logging.FileHandler;
 import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
@@ -16,6 +13,7 @@ import com.cosec.backend.models.*;
 import com.cosec.backend.payload.request.CaffRequest;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
+import com.cosec.backend.payload.response.CaffResponse;
 import com.cosec.backend.payload.response.JwtResponse;
 import com.cosec.backend.payload.response.MessageResponse;
 import com.cosec.backend.repository.CaffRepository;
@@ -24,6 +22,7 @@ import com.cosec.backend.repository.UserRepository;
 import com.cosec.backend.security.jwt.JwtUtils;
 import com.cosec.backend.security.services.UserDetailsImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -75,7 +74,7 @@ public class UserController {
     public ResponseEntity<?> getAll(){
         logger.info(String.format("ADMIN %s(%s) requested all Users.",getCurrentUser().getUsername(),getCurrentUser().getId()));
         List<User> users = this.userRepository.findAll();
-        if(users.size() == 0){
+        if(users.size() == 0) {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: User database is empty!"));
@@ -110,9 +109,13 @@ public class UserController {
         }
 
         List<Caff> caffs = this.caffRepository.getAllByUserId(id);
+        List<CaffResponse> responseList = new ArrayList<>();
+        for (Caff caff : caffs) {
+            responseList.add(new CaffResponse(caff));
+        }
         return ResponseEntity
                 .ok()
-                .body(caffs);
+                .body(responseList);
     }
 
     @DeleteMapping("/admin/{id}")
@@ -175,10 +178,19 @@ public class UserController {
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
         logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         Caff newCaff = new Caff(id,paramCaff);
-        caffRepository.save(newCaff);
-        return ResponseEntity
-                .ok()
-                .body(new MessageResponse("Added Caff to Database!"));
+        String message = CheckCaff(newCaff);
+        if(!message.equals("Parse successful."))
+        {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse(message));
+        }
+        else {
+            caffRepository.save(newCaff);
+            return ResponseEntity
+                    .ok()
+                    .body(new MessageResponse("Added Caff to Database, Parse successful!"));
+        }
     }
 
     @PostMapping("/unauth/login")
@@ -268,5 +280,41 @@ public class UserController {
         userRepository.save(user);
 
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+    }
+
+    public String CheckCaff(Caff caff) {
+        StringBuilder retVal = new StringBuilder();
+        try {
+            FileOutputStream outputStream = new FileOutputStream( "check.caff");
+            outputStream.write(caff.getData().getData());
+            outputStream.close();
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            File parser = new ClassPathResource("parser/parser.exe").getFile();
+            if (parser.exists()) {
+                try {
+                    ProcessBuilder pb = new ProcessBuilder(parser.getAbsolutePath(), "check.caff");
+                    pb.redirectError();
+                    Process p = pb.start();
+                    InputStream is = p.getInputStream();
+                    int value = -1;
+                    while ((value = is.read()) != -1) {
+                        System.out.print((char) value);
+                        retVal.append((char) value);
+                    }
+                    int exitCode = p.waitFor();
+                    return retVal.toString();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                System.err.println(parser.getAbsolutePath() + " does not exist");
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return retVal.toString();
     }
 }
