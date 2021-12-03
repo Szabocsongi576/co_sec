@@ -15,4 +15,6 @@ public interface CaffRepository extends MongoRepository<Caff, String> {
     List<Caff> getAllByUserId(String userId);
 
     List<Caff> findByName(String name);
+
+    boolean existsByName(String name);
 }

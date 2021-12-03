@@ -75,52 +75,106 @@ public class UserController {
     }
 
     @GetMapping("/admin/all")
-    public List<User> getAll(){
+    public ResponseEntity<?> getAll(){
         logger.info(String.format("ADMIN %s(%s) requested all Users.",getCurrentUser().getUsername(),getCurrentUser().getId()));
         List<User> users = this.userRepository.findAll();
-        return users;
+        if(users.size() == 0){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User database is empty!"));
+        }
+        return ResponseEntity
+                .ok()
+                .body(users);
     }
 
     @GetMapping("/admin/{id}")
-    public Optional<User> getUserById(@PathVariable("id") String id){
+    public ResponseEntity<?> getUserById(@PathVariable("id") String id){
         logger.info(String.format("ADMIN %s(%s) requested User(%s)'s data.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+        if(!userRepository.existsById(id)){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User does not exist!"));
+        }
+
         Optional<User> user = this.userRepository.findById(id);
-        return user;
+        return ResponseEntity
+                .ok()
+                .body(user);
     }
 
     @GetMapping("/auth/{id}/caffs")
-    public List<Caff> getCaffsByUserId(@PathVariable("id") String id){
+    public ResponseEntity<?> getCaffsByUserId(@PathVariable("id") String id){
         logger.info(String.format("USER %s(%s) requested Caffs of User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+        if(!userRepository.existsById(id)){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User does not exist!"));
+        }
+
         List<Caff> caffs = this.caffRepository.getAllByUserId(id);
-        return caffs;
+        return ResponseEntity
+                .ok()
+                .body(caffs);
     }
 
     @DeleteMapping("/admin/{id}")
-    public void deleteUserById(@PathVariable("id") String id){
+    public ResponseEntity<?> deleteUserById(@PathVariable("id") String id){
         logger.info(String.format("ADMIN %s(%s) deleted User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+        if(!userRepository.existsById(id)){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User does not exist!"));
+        }
+
         this.userRepository.deleteById(id);
         this.caffRepository.deleteAllByUserId(id);
+        return ResponseEntity
+                .ok()
+                .body(new MessageResponse("User deleted successfully!"));
     }
 
     @PutMapping("/admin/{id}")
-    public void updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
+    public ResponseEntity<?> updateUserById(@PathVariable("id") String id, @Valid @RequestBody User userDetails){
         if(userRepository.existsById(id)) {
             User toEdit = userRepository.findById(id).get();
             if(userDetails.getEmail() != null)
+                if (userRepository.existsByEmail(userDetails.getEmail())) {
+                    return ResponseEntity
+                            .badRequest()
+                            .body(new MessageResponse("Error: Email is already in use!"));
+                }
                 toEdit.setEmail(userDetails.getEmail());
             if(userDetails.getUsername() != null)
+                if (userRepository.existsByUsername(userDetails.getUsername())) {
+                    return ResponseEntity
+                            .badRequest()
+                            .body(new MessageResponse("Error: Username is already taken!"));
+                }
                 toEdit.setUsername(userDetails.getUsername());
             if(userDetails.getPassword() != null)
-                toEdit.setPassword(userDetails.getPassword());
+                if((userDetails.getPassword().length() < 8)) {
+                return ResponseEntity
+                        .badRequest()
+                        .body(new MessageResponse("Error: Password should be at least 8 characters long!"));
+                }
+                toEdit.setPassword(encoder.encode(userDetails.getPassword()));
             if(userDetails.getRoles().size() != 0)
                 toEdit.setRoles(userDetails.getRoles());
             userRepository.save(toEdit);
             logger.info(String.format("ADMIN %s(%s) updated User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+            return ResponseEntity
+                    .ok()
+                    .body(new MessageResponse("User updated successfully!"));
         }
         else{
             logger.info(String.format("ADMIN %s(%s) try to update User(%s), but User does not exist.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: User does not exist!"));
         }
     }
+
 
     @PostMapping("/auth/{id}/caffs/")
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
@@ -134,6 +188,18 @@ public class UserController {
 
     @PostMapping("/unauth/login")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody Login loginRequest) {
+
+        if (!userRepository.existsByUsername(loginRequest.getUsername())) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Username is not found"));
+        }
+
+        if(!(encoder.matches(loginRequest.getPassword() ,userRepository.findByUsername(loginRequest.getUsername()).get().getPassword()))){
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Password is incorrect"));
+        }
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -165,6 +231,12 @@ public class UserController {
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Email is already in use!"));
+        }
+
+        if (signUpRequest.getPassword().length() < 8) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Password should be at least 8 characters long!"));
         }
 
         // Create new user's account
