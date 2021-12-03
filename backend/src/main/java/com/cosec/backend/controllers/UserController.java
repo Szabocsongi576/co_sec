@@ -23,8 +23,6 @@ import com.cosec.backend.repository.RoleRepository;
 import com.cosec.backend.repository.UserRepository;
 import com.cosec.backend.security.jwt.JwtUtils;
 import com.cosec.backend.security.services.UserDetailsImpl;
-import org.bson.BsonBinarySubType;
-import org.bson.types.Binary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -33,7 +31,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -120,13 +117,12 @@ public class UserController {
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteUserById(@PathVariable("id") String id){
-        logger.info(String.format("ADMIN %s(%s) deleted User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         if(!userRepository.existsById(id)){
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: User does not exist!"));
         }
-
+        logger.info(String.format("ADMIN %s(%s) deleted User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         this.userRepository.deleteById(id);
         this.caffRepository.deleteAllByUserId(id);
         return ResponseEntity

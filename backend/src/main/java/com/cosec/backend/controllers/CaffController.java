@@ -2,7 +2,6 @@ package com.cosec.backend.controllers;
 
 import com.cosec.backend.models.Caff;
 import com.cosec.backend.models.Comment;
-import com.cosec.backend.models.User;
 import com.cosec.backend.payload.response.CaffResponse;
 import com.cosec.backend.payload.response.MessageResponse;
 import com.cosec.backend.repository.CaffRepository;
@@ -127,12 +126,12 @@ public class CaffController {
 
     @PostMapping("/auth/comments")
     public ResponseEntity<?> createComment(@RequestBody Comment comment){
-        logger.info(String.format("USER %s(%s) Created Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),comment.getId()));
         if(!caffRepository.existsById(comment.getCaffId())){
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
+        logger.info(String.format("USER %s(%s) Created Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),comment.getId()));
         this.commentRepository.save(comment);
         return ResponseEntity
                 .ok()
@@ -141,12 +140,12 @@ public class CaffController {
 
     @DeleteMapping("/admin/{id}")
     public ResponseEntity<?> deleteCaffById(@PathVariable("id") String id){
-        logger.info(String.format("ADMIN %s(%s) Deleted Caff(%s) and related comments.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         if(!caffRepository.existsById(id)){
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
+        logger.info(String.format("ADMIN %s(%s) Deleted Caff(%s) and related comments.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         this.caffRepository.deleteById(id);
         this.commentRepository.deleteAllByCaffId(id);
         return ResponseEntity
@@ -156,12 +155,12 @@ public class CaffController {
 
     @DeleteMapping("/admin/comments/{commentId}")
     public ResponseEntity<?> deleteCommentById(@PathVariable("commentId") String commentId){
-        logger.info(String.format("ADMIN %s(%s) Deleted Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),commentId));
         if(!commentRepository.existsById(commentId)){
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Comment does not exist!"));
         }
+        logger.info(String.format("ADMIN %s(%s) Deleted Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),commentId));
         this.commentRepository.deleteById(commentId);
         return ResponseEntity
                 .ok()
