@@ -175,8 +175,7 @@ public class UserController {
         }
     }
 
-
-    @PostMapping("/auth/{id}/caffs/")
+    @PostMapping("/auth/{id}/caffs")
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
         logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
         Caff newCaff = new Caff(id,paramCaff);
