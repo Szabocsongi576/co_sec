@@ -78,10 +78,12 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
-        Optional<Caff> caff = this.caffRepository.findById(id);
-        return ResponseEntity
-                .ok()
-                .body(caff);
+        else {
+            Optional<Caff> caff = this.caffRepository.findById(id);
+            return ResponseEntity
+                    .ok()
+                    .body(new CaffResponse(caff.get()));
+        }
     }
 
     @GetMapping("/unauth/{id}/download")
@@ -106,9 +108,14 @@ public class CaffController {
                     .body(new MessageResponse("Error: Caff does not exist with this name!"));
         }
         List<Caff> caffs = this.caffRepository.findByName(name);
+        List<CaffResponse> responseList = new ArrayList<>();
+
+        for (Caff caff : caffs) {
+            responseList.add(new CaffResponse(caff));
+        }
         return ResponseEntity
                 .ok()
-                .body(caffs);
+                .body(responseList);
     }
 
     @GetMapping("/unauth/{id}/comments")
