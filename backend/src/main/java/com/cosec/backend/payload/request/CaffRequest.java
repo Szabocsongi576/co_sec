@@ -9,7 +9,7 @@ public class CaffRequest {
 
     public CaffRequest(){}
 
-    public CaffRequest(String userId, String name, MultipartFile data) {
+    public CaffRequest(String name, MultipartFile data) {
         this.name = name;
         this.data = data;
     }

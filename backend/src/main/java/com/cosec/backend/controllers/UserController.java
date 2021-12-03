@@ -177,13 +177,23 @@ public class UserController {
     @PostMapping("/auth/{id}/caffs")
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
         logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
-        Caff newCaff = new Caff(id,paramCaff);
-        String message = CheckCaff(newCaff);
-        if(!message.equals("Parse successful."))
+        /*
+        / TODO Check if Frontend sends valid multipart form data, where the multipart file extension can be checked.
+        / Then this snippet can be used to check file extension.
+        if(!paramCaff.getData().getOriginalFilename().split("\\.")[1].equals("caff"))
         {
             return ResponseEntity
                     .badRequest()
-                    .body(new MessageResponse(message));
+                    .body(new MessageResponse("Invalid File Extension: " + paramCaff.getData().getOriginalFilename().split("\\.")[1]));
+        }
+         */
+        Caff newCaff = new Caff(id,paramCaff);
+        String message = CheckCaff(newCaff);
+        if(!message.equals("Parse successful.\r\nGif's name: check.gif\r\n"))
+        {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Parser Error: " + message));
         }
         else {
             caffRepository.save(newCaff);
@@ -299,12 +309,20 @@ public class UserController {
                     pb.redirectError();
                     Process p = pb.start();
                     InputStream is = p.getInputStream();
+                    InputStream isErr = p.getErrorStream();
                     int value = -1;
-                    while ((value = is.read()) != -1) {
-                        System.out.print((char) value);
-                        retVal.append((char) value);
-                    }
                     int exitCode = p.waitFor();
+                    if(exitCode == 0) {
+                        while ((value = is.read()) != -1) {
+                            System.out.print((char) value);
+                            retVal.append((char) value);
+                        }
+                    } else if(exitCode == 1) {
+                        while ((value = isErr.read()) != -1) {
+                            System.out.print((char) value);
+                            retVal.append((char) value);
+                        }
+                    }
                     return retVal.toString();
                 } catch (Exception e) {
                     e.printStackTrace();
