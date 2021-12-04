@@ -39,7 +39,9 @@ public class CaffController {
     @Autowired
     private CommentRepository commentRepository;
 
-    public CaffController() throws IOException {
+    public CaffController(CaffRepository caffRepository,CommentRepository commentRepository) throws IOException {
+        this.caffRepository = caffRepository;
+        this.commentRepository = commentRepository;
         fh = new FileHandler("C:/work/CaffController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
@@ -59,15 +61,16 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff database is empty!"));
         }
+        else {
+            List<CaffResponse> responseList = new ArrayList<>();
 
-        List<CaffResponse> responseList = new ArrayList<>();
-
-         for (Caff caff : caffs) {
-             responseList.add(new CaffResponse(caff));
-         }
-        return ResponseEntity
-                .ok()
-                .body(responseList);
+            for (Caff caff : caffs) {
+                responseList.add(new CaffResponse(caff));
+            }
+            return ResponseEntity
+                    .ok()
+                    .body(responseList);
+        }
     }
 
     @GetMapping("/unauth/{id}")
@@ -93,11 +96,13 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
-        Optional<Caff> caff = this.caffRepository.findById(id);
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(MediaType.MULTIPART_MIXED_VALUE))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + caff.get().getName() + "\"")
-                .body(caff.get().getData().getData());
+        else {
+            Optional<Caff> caff = this.caffRepository.findById(id);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(MediaType.MULTIPART_MIXED_VALUE))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + caff.get().getName() + "\"")
+                    .body(caff.get().getData().getData());
+        }
     }
 
     @GetMapping("/unauth/search")
@@ -107,15 +112,16 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist with this name!"));
         }
-        List<Caff> caffs = this.caffRepository.findByName(name);
-        List<CaffResponse> responseList = new ArrayList<>();
-
-        for (Caff caff : caffs) {
-            responseList.add(new CaffResponse(caff));
+        else {
+            List<Caff> caffs = this.caffRepository.findByName(name);
+            List<CaffResponse> responseList = new ArrayList<>();
+            for (Caff caff : caffs) {
+                responseList.add(new CaffResponse(caff));
+            }
+            return ResponseEntity
+                    .ok()
+                    .body(responseList);
         }
-        return ResponseEntity
-                .ok()
-                .body(responseList);
     }
 
     @GetMapping("/unauth/{id}/comments")
@@ -125,10 +131,12 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
-        List<Comment> comments = this.commentRepository.findAllByCaffId(id);
-        return ResponseEntity
-                .ok()
-                .body(comments);
+        else {
+            List<Comment> comments = this.commentRepository.findAllByCaffId(id);
+            return ResponseEntity
+                    .ok()
+                    .body(comments);
+        }
     }
 
     @PostMapping("/auth/comments")
@@ -138,11 +146,13 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
-        logger.info(String.format("USER %s(%s) Created Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),comment.getId()));
-        this.commentRepository.save(comment);
-        return ResponseEntity
-                .ok()
-                .body(comment);
+        else {
+            logger.info(String.format("USER %s(%s) Created Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),comment.getId()));
+            this.commentRepository.save(comment);
+            return ResponseEntity
+                    .ok()
+                    .body(comment);
+        }
     }
 
     @DeleteMapping("/admin/{id}")
@@ -152,12 +162,14 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Caff does not exist!"));
         }
-        logger.info(String.format("ADMIN %s(%s) Deleted Caff(%s) and related comments.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
-        this.caffRepository.deleteById(id);
-        this.commentRepository.deleteAllByCaffId(id);
-        return ResponseEntity
-                .ok()
-                .body(new MessageResponse("Caff deleted successfully!"));
+        else {
+            logger.info(String.format("ADMIN %s(%s) Deleted Caff(%s) and related comments.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
+            this.caffRepository.deleteById(id);
+            this.commentRepository.deleteAllByCaffId(id);
+            return ResponseEntity
+                    .ok()
+                    .body(new MessageResponse("Caff deleted successfully!"));
+        }
     }
 
     @DeleteMapping("/admin/comments/{commentId}")
@@ -167,23 +179,32 @@ public class CaffController {
                     .badRequest()
                     .body(new MessageResponse("Error: Comment does not exist!"));
         }
-        logger.info(String.format("ADMIN %s(%s) Deleted Comment(%s)",getCurrentUser().getUsername(),getCurrentUser().getId(),commentId));
-        this.commentRepository.deleteById(commentId);
-        return ResponseEntity
-                .ok()
-                .body(new MessageResponse("Comment deleted successfully!"));
+        else {
+            logger.info(String.format("ADMIN %s(%s) Deleted Comment(%s)", getCurrentUser().getUsername(), getCurrentUser().getId(), commentId));
+            this.commentRepository.deleteById(commentId);
+            return ResponseEntity
+                    .ok()
+                    .body(new MessageResponse("Comment deleted successfully!"));
+        }
     }
 
     @GetMapping("/unauth/image/{caffId}")
     public ResponseEntity<?> getCaffImage(@PathVariable String caffId) {
-        Caff caff = this.caffRepository.findById(caffId).get();
-        return ResponseEntity.ok()
-                .contentType(MediaType.parseMediaType(MediaType.IMAGE_GIF_VALUE))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + caff.getName() + ".gif\"")
-                .body(parseCaff(caff));
+        if(!this.caffRepository.existsById(caffId)) {
+            return ResponseEntity
+                    .badRequest()
+                    .body(new MessageResponse("Error: Caff does not exist!"));
+        }
+        else {
+            Optional<Caff> caff = this.caffRepository.findById(caffId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(MediaType.IMAGE_GIF_VALUE))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + caff.get().getName() + ".gif\"")
+                    .body(parseCaff(caff.get()));
+        }
     }
 
-    public String parseCaff(Caff caff) {
+    private String parseCaff(Caff caff) {
         String retVal ="";
         try {
             FileOutputStream outputStream = new FileOutputStream( "sample.caff");
