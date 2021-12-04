@@ -213,6 +213,12 @@ class CaffControllerTest {
     }
 
     @Test
+    void createComment_Unauthorized() throws Exception {
+        this.mvc.perform(post("/caffs/auth/comments")).andDo(print())
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
     void deleteCaffById_Success() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
         when(caffRepository.existsById("1")).thenReturn(true);
