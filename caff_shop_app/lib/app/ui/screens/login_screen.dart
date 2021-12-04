@@ -18,32 +18,44 @@ class _LoginScreenState extends State<LoginScreen> {
   LoginStore _store = LoginStore();
 
   final Map<String, TextEditingController> _textControllers = {
-    "email": TextEditingController(),
+    "username": TextEditingController(),
     "password": TextEditingController(),
   };
 
   final Map<String, FocusNode> _focusNodes = {
-    "email": FocusNode(),
+    "username": FocusNode(),
     "password": FocusNode(),
   };
 
   @override
+  void initState() {
+    _store.init();
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Loading(
-      store: _store.loadingStore,
-      isExpandable: true,
-      appBar: AppBar(
-        title: Text(tr('appbar.login')),
-      ),
-      body: Container(
-        padding: EdgeInsets.all(20.r),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            SizedBox(),
-            _buildLoginArea(),
-            _buildRegisterArea(),
-          ],
+    return WillPopScope(
+      onWillPop: () async {
+        return false;
+      },
+      child: Loading(
+        store: _store.loadingStore,
+        isExpandable: true,
+        appBar: AppBar(
+          title: Text(tr('appbar.login')),
+          automaticallyImplyLeading: false,
+        ),
+        body: Container(
+          padding: EdgeInsets.all(20.r),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              SizedBox(),
+              _buildLoginArea(),
+              _buildRegisterArea(),
+            ],
+          ),
         ),
       ),
     );
@@ -58,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildEmail(),
+              _buildUsername(),
               SizedBox(height: 15.h),
               _buildPassword(),
               SizedBox(height: 25.h),
@@ -70,19 +82,18 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildEmail() {
+  Widget _buildUsername() {
     return Observer(
       builder: (context) => Padding(
         padding: EdgeInsets.symmetric(vertical: 5.r),
         child: TextFormField(
           decoration: InputDecoration(
-            labelText: tr("hint.email"),
-            errorText: _store.emailError,
+            labelText: tr("hint.username"),
+            errorText: _store.usernameError,
           ),
-          keyboardType: TextInputType.emailAddress,
-          controller: _textControllers["email"],
-          focusNode: _focusNodes["email"],
-          onChanged: (value) => _store.email = _textControllers["email"]!.text,
+          controller: _textControllers["username"],
+          focusNode: _focusNodes["username"],
+          onChanged: (value) => _store.username = _textControllers["username"]!.text,
           onFieldSubmitted: (value) {
             FocusScope.of(context).requestFocus(_focusNodes["password"]);
           },
@@ -194,8 +205,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLoginPressed() async {
     await unFocus();
     _store.login(
-      onSuccess: () {
-        Navigator.of(context).pushNamed(Routes.home);
+      onSuccess: (response) {
+        Navigator.of(context).pushNamed(Routes.home, arguments: response);
       },
       onError: _showSnackBar,
     );

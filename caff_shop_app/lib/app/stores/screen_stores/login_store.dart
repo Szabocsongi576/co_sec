@@ -1,4 +1,12 @@
+import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/api_util.dart';
+import 'package:caff_shop_app/app/api/error_handler.dart';
+import 'package:caff_shop_app/app/api/interceptors/save_token_interceptor.dart';
+import 'package:caff_shop_app/app/models/login_request.dart';
+import 'package:caff_shop_app/app/models/login_response.dart';
+import 'package:caff_shop_app/app/services/data_load_service.dart';
 import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobx/mobx.dart';
 import 'package:validators/validators.dart';
@@ -19,8 +27,8 @@ abstract class _LoginStore with Store {
 
   void _setupDisposers() {
     _disposers = [
-      reaction((_) => email, (_) {
-        emailError = null;
+      reaction((_) => username, (_) {
+        usernameError = null;
       }),
       reaction((_) => password, (_) {
         passwordError = null;
@@ -30,13 +38,13 @@ abstract class _LoginStore with Store {
 
   // store variables:-----------------------------------------------------------
   @observable
-  String email = '';
+  String username = '';
 
   @observable
   String password = '';
 
   @observable
-  String? emailError;
+  String? usernameError;
 
   @observable
   String? passwordError;
@@ -46,8 +54,22 @@ abstract class _LoginStore with Store {
 
   // actions:-------------------------------------------------------------------
   @action
+  Future<void> init() async {
+    if(ApiUtil().baseUrl == null) {
+      loadingStore.loading = true;
+
+      DataLoadService loadService = DataLoadService();
+      Map<String, dynamic> map = await loadService.readJson();
+
+      ApiUtil().baseUrl = "http://${map['ip']}:${map['port']}";
+
+      loadingStore.loading = false;
+    }
+  }
+
+  @action
   Future<void> login({
-    required void Function() onSuccess,
+    required void Function(LoginResponse) onSuccess,
     required void Function(String) onError,
   }) async {
     if (!validate()) {
@@ -56,8 +78,25 @@ abstract class _LoginStore with Store {
 
     loadingStore.stackedLoading = true;
 
-    await Future.delayed(Duration(milliseconds: 500));
-    onSuccess();
+    try {
+      LoginRequest request = LoginRequest(
+        username: username,
+        password: password,
+      );
+      Response<LoginResponse> response =
+      await Api(interceptors: [SaveBearerTokenInterceptor()])
+          .getUserApi()
+          .authenticateUser(request);
+
+      if (response.isSuccess()) {
+        onSuccess(response.data!);
+      }
+    } on DioError catch (error) {
+      handleDioError(
+        error: error,
+        onError: onError,
+      );
+    }
 
     loadingStore.stackedLoading = false;
   }
@@ -72,14 +111,8 @@ abstract class _LoginStore with Store {
   bool validate() {
     bool valid = true;
 
-    if (email.isEmpty) {
-      emailError = tr("error.field_is_empty");
-      valid = false;
-    } else if (!isEmail(email)) {
-      emailError = tr(
-        "error.invalid_content",
-        namedArgs: {"field": "email"},
-      );
+    if (username.isEmpty) {
+      usernameError = tr("error.field_is_empty");
       valid = false;
     }
 

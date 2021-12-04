@@ -4,11 +4,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class CommentListItem extends StatelessWidget {
   final String text;
   final String userName;
+  final void Function()? onDelete;
 
   const CommentListItem({
     Key? key,
     required this.text,
     required this.userName,
+    this.onDelete,
   }) : super(key: key);
 
   @override
@@ -17,6 +19,7 @@ class CommentListItem extends StatelessWidget {
       child: Column(
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Expanded(
                 child: Text(
@@ -24,6 +27,11 @@ class CommentListItem extends StatelessWidget {
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
               ),
+              if(onDelete != null)
+                IconButton(
+                  onPressed: onDelete,
+                  icon: Icon(Icons.delete),
+                ),
             ],
           ),
           Padding(

@@ -1,4 +1,8 @@
 import 'package:caff_shop_app/app/config/color_constants.dart';
+import 'package:caff_shop_app/app/models/caff_request.dart';
+import 'package:caff_shop_app/app/models/converted_caff.dart';
+import 'package:caff_shop_app/app/models/login_response.dart';
+import 'package:caff_shop_app/app/models/role_type.dart';
 import 'package:caff_shop_app/app/routes/home_routes.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_list_store.dart';
 import 'package:caff_shop_app/app/ui/widget/caff_list_item.dart';
@@ -9,6 +13,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class FileListScreen extends StatefulWidget {
   const FileListScreen({Key? key}) : super(key: key);
@@ -18,15 +23,22 @@ class FileListScreen extends StatefulWidget {
 }
 
 class _FileListScreenState extends State<FileListScreen> {
-  final FileListStore _store = FileListStore();
+  late final FileListStore _store;
 
   final TextEditingController _textEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
 
   @override
   void initState() {
-    super.initState();
+    _store = FileListStore(
+      isAdmin: Provider
+          .of<LoginResponse>(context, listen: false)
+          .roles
+          .contains(RoleType.ROLE_ADMIN),
+    );
     _store.getCaffFiles(onError: _showSnackBar);
+
+    super.initState();
   }
 
   @override
@@ -36,6 +48,7 @@ class _FileListScreenState extends State<FileListScreen> {
       isExpandable: false,
       appBar: AppBar(
         title: Text(tr('appbar.caff_browser')),
+        automaticallyImplyLeading: false,
         actions: [
           IconButton(
             onPressed: _onProfileTap,
@@ -67,19 +80,21 @@ class _FileListScreenState extends State<FileListScreen> {
             ),
             SizedBox(height: 20.h),
             Observer(
-              builder: (_) => GridView.count(
-                primary: false,
-                shrinkWrap: true,
-                crossAxisCount: 2,
-                mainAxisSpacing: 10.r,
-                crossAxisSpacing: 10.r,
-                children: _store.caffSrcList.map((String url) {
-                  return CaffListItem(
-                    url: url,
-                    onTap: () => _onItemTap(url),
-                  );
-                }).toList(),
-              ),
+              builder: (_) =>
+                  GridView.count(
+                    primary: false,
+                    shrinkWrap: true,
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 10.r,
+                    crossAxisSpacing: 10.r,
+                    children: _store.caffList.map((ConvertedCaff caff) {
+                      return CaffListItem(
+                        caff: caff,
+                        onTap: () => _onItemTap(caff),
+                        onDelete: _store.isAdmin ? () => _onItemDeleteTap(caff) : null,
+                      );
+                    }).toList(),
+                  ),
             ),
           ],
         ),
@@ -89,93 +104,12 @@ class _FileListScreenState extends State<FileListScreen> {
           Icons.file_upload,
           color: ColorConstants.white,
         ),
-        onPressed: _onFABPressed,
-      ),
-      /*body: Loading(
-        store: _store.loadingStore,
-        enableScrolling: false,
-        appBar: AppBar(
-          title: Text(tr('appbar.caff_browser')),
-          actions: [
-            IconButton(
-              onPressed: () {},
-              icon: Icon(Icons.person),
+        onPressed: () =>
+            _onFABPressed(
+              id: Provider
+                  .of<LoginResponse>(context, listen: false)
+                  .id,
             ),
-          ],
-        ),
-        body: SafeArea(
-          child: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.all(20.r),
-              child: Column(
-                //mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(),
-                  Observer(
-                    builder: (_) => GridView.count(
-                      primary: false,
-                      shrinkWrap: true,
-                      crossAxisCount: 2,
-                      mainAxisSpacing: 10.r,
-                      crossAxisSpacing: 10.r,
-                      children: _store.caffSrcList.map((String url) {
-                        return GridTile(
-                          child: Card(
-                            child: Container(
-                              padding: EdgeInsets.all(15.r),
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Expanded(
-                                      child: Image.network(
-                                        url,
-                                        fit: BoxFit.cover,
-                                      ),
-                                    ),
-                                    SizedBox(height: 5.r),
-                                    Text("Sample.caff"),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),*/
-    );
-  }
-
-  Widget _buildLoading() {
-    return Center(
-      child: Container(
-        decoration: BoxDecoration(
-          color: ColorConstants.lightGrey,
-          borderRadius: BorderRadius.circular(50.r),
-          boxShadow: [
-            BoxShadow(
-              color: ColorConstants.shadow,
-              blurRadius: 40.r,
-              offset: Offset(0, 16.r), // changes position of shadow
-            ),
-          ],
-        ),
-        width: 100.r,
-        height: 100.r,
-        child: Center(
-          child: Container(
-            width: 50.r,
-            height: 50.r,
-            child: CircularProgressIndicator(),
-          ),
-        ),
       ),
     );
   }
@@ -189,18 +123,59 @@ class _FileListScreenState extends State<FileListScreen> {
     );
   }
 
-  void _onItemTap(String url) {
-    Navigator.of(context).pushNamed(HomeRoutes.fileDetails, arguments: url);
+  Future<void> _onItemTap(ConvertedCaff caff) async {
+    bool? result = await Navigator.of(context)
+        .pushNamed(HomeRoutes.fileDetails, arguments: caff) as bool?;
+
+    if (result ?? false) {
+      await Future.delayed(Duration(milliseconds: 300));
+      await _store.deleteCaff(
+        caffId: caff.id,
+        onSuccess: (response) => _showSnackBar(response.message),
+        onError: _showSnackBar,
+      );
+    } else {
+      _store.getCaffFiles(
+        onError: _showSnackBar,
+      );
+    }
   }
 
-  Future<void> _onFABPressed() async {
-    await showDialog(
-        context: context,
-        builder: (context) => UploadDialog(),
+  Future<void> _onItemDeleteTap(ConvertedCaff caff) async {
+    await _store.deleteCaff(
+      caffId: caff.id,
+      onSuccess: (response) => _showSnackBar(response.message),
+      onError: _showSnackBar,
     );
+  }
+
+  Future<void> _onFABPressed({
+    required String id,
+  }) async {
+    CaffRequest? resource = await showDialog(
+      context: context,
+      builder: (context) => UploadDialog(),
+    );
+
+    if (resource != null) {
+      _store.createCaff(
+        userId: id,
+        resource: resource,
+        onSuccess: (message) {
+          _showSnackBar(message.message);
+          _store.getCaffFiles(
+            onError: _showSnackBar,
+          );
+        },
+        onError: _showSnackBar,
+      );
+    }
   }
 
   void _onProfileTap() {
     Navigator.of(context).pushNamed(HomeRoutes.profile);
+    _store.getCaffFiles(
+      onError: _showSnackBar,
+    );
   }
 }

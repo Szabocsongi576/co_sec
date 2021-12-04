@@ -9,49 +9,103 @@ part of 'file_details_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$FileDetailsStore on _FileDetailsStore, Store {
-  final _$caffFileAtom = Atom(name: '_FileDetailsStore.caffFile');
+  final _$textAtom = Atom(name: '_FileDetailsStore.text');
 
   @override
-  String? get caffFile {
-    _$caffFileAtom.reportRead();
-    return super.caffFile;
+  String get text {
+    _$textAtom.reportRead();
+    return super.text;
   }
 
   @override
-  set caffFile(String? value) {
-    _$caffFileAtom.reportWrite(value, super.caffFile, () {
-      super.caffFile = value;
+  set text(String value) {
+    _$textAtom.reportWrite(value, super.text, () {
+      super.text = value;
     });
   }
 
   final _$commentsAtom = Atom(name: '_FileDetailsStore.comments');
 
   @override
-  List<String> get comments {
+  ObservableList<Comment> get comments {
     _$commentsAtom.reportRead();
     return super.comments;
   }
 
   @override
-  set comments(List<String> value) {
+  set comments(ObservableList<Comment> value) {
     _$commentsAtom.reportWrite(value, super.comments, () {
       super.comments = value;
     });
+  }
+
+  final _$usersAtom = Atom(name: '_FileDetailsStore.users');
+
+  @override
+  ObservableList<User> get users {
+    _$usersAtom.reportRead();
+    return super.users;
+  }
+
+  @override
+  set users(ObservableList<User> value) {
+    _$usersAtom.reportWrite(value, super.users, () {
+      super.users = value;
+    });
+  }
+
+  final _$initAsyncAction = AsyncAction('_FileDetailsStore.init');
+
+  @override
+  Future<void> init({required void Function(String, void Function()) onError}) {
+    return _$initAsyncAction.run(() => super.init(onError: onError));
   }
 
   final _$getCaffDetailsAsyncAction =
       AsyncAction('_FileDetailsStore.getCaffDetails');
 
   @override
-  Future<void> getCaffDetails({required String id}) {
-    return _$getCaffDetailsAsyncAction.run(() => super.getCaffDetails(id: id));
+  Future<void> getCaffDetails() {
+    return _$getCaffDetailsAsyncAction.run(() => super.getCaffDetails());
+  }
+
+  final _$getAllUserAsyncAction = AsyncAction('_FileDetailsStore.getAllUser');
+
+  @override
+  Future<void> getAllUser() {
+    return _$getAllUserAsyncAction.run(() => super.getAllUser());
+  }
+
+  final _$createCommentAsyncAction =
+      AsyncAction('_FileDetailsStore.createComment');
+
+  @override
+  Future<void> createComment(
+      {required String userId,
+      required void Function() onSuccess,
+      required void Function(String) onError}) {
+    return _$createCommentAsyncAction.run(() => super
+        .createComment(userId: userId, onSuccess: onSuccess, onError: onError));
+  }
+
+  final _$deleteCommentAsyncAction =
+      AsyncAction('_FileDetailsStore.deleteComment');
+
+  @override
+  Future<void> deleteComment(
+      {required String commentId,
+      required void Function(MessageResponse) onSuccess,
+      required void Function(String) onError}) {
+    return _$deleteCommentAsyncAction.run(() => super.deleteComment(
+        commentId: commentId, onSuccess: onSuccess, onError: onError));
   }
 
   @override
   String toString() {
     return '''
-caffFile: ${caffFile},
-comments: ${comments}
+text: ${text},
+comments: ${comments},
+users: ${users}
     ''';
   }
 }

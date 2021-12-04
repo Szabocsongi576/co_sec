@@ -42,7 +42,7 @@ public class CaffController {
     public CaffController(CaffRepository caffRepository,CommentRepository commentRepository) throws IOException {
         this.caffRepository = caffRepository;
         this.commentRepository = commentRepository;
-        fh = new FileHandler("C:/work/CaffController.log");
+        fh = new FileHandler("E:/work/co_sec/CaffController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);

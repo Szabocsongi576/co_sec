@@ -2,7 +2,12 @@
   "error": {
     "field_is_empty": "A mező kitöltése kötelező",
     "invalid_content": "A mező kitöltése nem érvényes",
-    "passwords_different": "A jelszavak nem egyeznek"
+    "passwords_different": "A jelszavak nem egyeznek",
+    "timeout": "A kapcsolat időtúllépés miatt megszakadt.",
+    "basic_error": "Valami hiba történt.",
+    "401_unauthorized": "Hibás felhasználónév vagy jelszó.",
+    "404_not_found": "Nem található megfelelő {thing}.",
+    "extension": "A file kiterjesztése nem megfelelő."
   },
   "appbar": {
     "login": "Bejelentkezés",
@@ -29,5 +34,6 @@
     "register": "Regisztráció",
     "upload": "Feltöltés"
   },
-  "add_file": "Válasszon ki egy fájlt!"
+  "add_file": "Válasszon ki egy fájlt!",
+  "refresh": "Újra"
 }

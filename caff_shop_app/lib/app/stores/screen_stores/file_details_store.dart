@@ -1,4 +1,13 @@
+import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/error_handler.dart';
+import 'package:caff_shop_app/app/api/interceptors/add_token_interceptor.dart';
+import 'package:caff_shop_app/app/models/comment.dart';
+import 'package:caff_shop_app/app/models/comment_request.dart';
+import 'package:caff_shop_app/app/models/converted_caff.dart';
+import 'package:caff_shop_app/app/models/response.dart';
+import 'package:caff_shop_app/app/models/user.dart';
 import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
+import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
 
 part 'file_details_store.g.dart';
@@ -10,27 +19,131 @@ abstract class _FileDetailsStore with Store {
     loading: true,
   );
 
+  _FileDetailsStore({
+    required this.caff,
+    required this.isAdmin,
+  });
+
   // store variables:-----------------------------------------------------------
   @observable
-  String? caffFile;
+  String text = "";
 
   @observable
-  List<String> comments = [];
+  ObservableList<Comment> comments = ObservableList.of([]);
+
+  @observable
+  ObservableList<User> users = ObservableList.of([]);
+
+  final ConvertedCaff caff;
+  final bool isAdmin;
 
   // actions:-------------------------------------------------------------------
   @action
-  Future<void> getCaffDetails({
-    required String id,
+  Future<void> init({
+    required void Function(String, void Function()) onError,
   }) async {
     loadingStore.loading = true;
 
-    await Future.delayed(Duration(milliseconds: 500));
-    comments.add("1 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",);
-    comments.add("2 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",);
-    comments.add("3 Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged.",);
+    try {
+      Future.wait([
+        getCaffDetails(),
+        getAllUser(),
+      ]);
+    } on DioError catch (error) {
+      handleDioError(
+        error: error,
+        onError: (message) => onError(message, () => init(onError: onError)),
+      );
+    }
 
     loadingStore.loading = false;
   }
 
-  // general methods:-----------------------------------------------------------
+  @action
+  Future<void> getCaffDetails() async {
+    Response<List<Comment>> response =
+        await Api(interceptors: [AddTokenInterceptor()])
+            .getCaffApi()
+            .getAllComment(caff.id);
+
+    if (response.isSuccess()) {
+      comments.clear();
+      comments.addAll(response.data!);
+    }
+  }
+
+  @action
+  Future<void> getAllUser() async {
+    Response<List<User>> response =
+        await Api(interceptors: [AddTokenInterceptor()]).getUserApi().getAll();
+
+    if (response.isSuccess()) {
+      users.clear();
+      users.addAll(response.data!);
+    }
+  }
+
+  @action
+  Future<void> createComment({
+    required String userId,
+    required void Function() onSuccess,
+    required void Function(String) onError,
+  }) async {
+    loadingStore.stackedLoading = true;
+
+    try {
+      CommentRequest resource = CommentRequest(
+        userId: userId,
+        caffId: caff.id,
+        text: text,
+      );
+      Response<Comment> response =
+          await Api(interceptors: [AddTokenInterceptor()])
+              .getCaffApi()
+              .createComment(resource);
+
+      if (response.isSuccess()) {
+        comments.add(response.data!);
+        text = "";
+        onSuccess();
+      }
+    } on DioError catch (error) {
+      handleDioError(
+        error: error,
+        onError: (message) => onError(message),
+      );
+    }
+
+    loadingStore.stackedLoading = false;
+  }
+
+  @action
+  Future<void> deleteComment({
+    required String commentId,
+    required void Function(MessageResponse) onSuccess,
+    required void Function(String) onError,
+  }) async {
+    loadingStore.stackedLoading = true;
+
+    try {
+      Response<MessageResponse> response =
+          await Api(interceptors: [AddTokenInterceptor()])
+              .getCaffApi()
+              .deleteCommentById(commentId);
+
+      if (response.isSuccess()) {
+        comments.removeWhere((e) => e.id == commentId);
+        onSuccess(response.data!);
+      }
+    } on DioError catch (error) {
+      handleDioError(
+        error: error,
+        onError: (message) => onError(message),
+      );
+    }
+
+    loadingStore.stackedLoading = false;
+  }
+
+// general methods:-----------------------------------------------------------
 }
