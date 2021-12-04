@@ -420,7 +420,7 @@ class UserControllerTest {
                         .characterEncoding(Encoding.DEFAULT_CHARSET)
                         .content(objectMapper.writeValueAsString(login))).andDo(print())
                 .andExpect(status().isOk());
-                
+
          */
     }
 
