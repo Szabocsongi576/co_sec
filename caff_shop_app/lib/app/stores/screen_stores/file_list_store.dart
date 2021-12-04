@@ -13,9 +13,7 @@ part 'file_list_store.g.dart';
 class FileListStore = _FileListStore with _$FileListStore;
 
 abstract class _FileListStore with Store {
-  final LoadingStore loadingStore = LoadingStore(
-    loading: true,
-  );
+  final LoadingStore loadingStore = LoadingStore();
 
   _FileListStore({
     required this.isAdmin,
@@ -23,22 +21,44 @@ abstract class _FileListStore with Store {
 
   // store variables:-----------------------------------------------------------
   @observable
+  String term = "";
+
+  @observable
+  bool focused = false;
+
+  @observable
+  bool empty = true;
+
+  @observable
   ObservableList<ConvertedCaff> caffList = ObservableList.of([]);
 
   final bool isAdmin;
+
+  bool initialized = false;
 
   // actions:-------------------------------------------------------------------
   @action
   Future<void> getCaffFiles({
     required void Function(String) onError,
   }) async {
-    loadingStore.loading = true;
+    if(!initialized) {
+      loadingStore.loading = true;
+    } else {
+      loadingStore.stackedLoading = true;
+    }
 
     try {
-      Response<List<ConvertedCaff>> response =
-      await Api(interceptors: [AddTokenInterceptor()])
-          .getCaffApi()
-          .getAll();
+      Response<List<ConvertedCaff>> response;
+
+      if(term.isEmpty) {
+        response = await Api(interceptors: [AddTokenInterceptor()])
+            .getCaffApi()
+            .getAll();
+      } else {
+        response = await Api(interceptors: [AddTokenInterceptor()])
+            .getCaffApi()
+            .searchCaffByName(term);
+      }
 
       if (response.isSuccess()) {
         caffList.clear();
@@ -51,7 +71,12 @@ abstract class _FileListStore with Store {
       );
     }
 
-    loadingStore.loading = false;
+    if(!initialized) {
+      loadingStore.loading = false;
+      initialized = true;
+    } else {
+      loadingStore.stackedLoading = false;
+    }
   }
 
   @action

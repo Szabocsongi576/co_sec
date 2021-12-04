@@ -38,6 +38,22 @@ class _FileListScreenState extends State<FileListScreen> {
     );
     _store.getCaffFiles(onError: _showSnackBar);
 
+    _focusNode.addListener(() {
+      if(!_focusNode.hasFocus) {
+        _store.focused = false;
+        _search();
+      } else {
+        _store.focused = true;
+      }
+    });
+    _textEditingController.addListener(() {
+      if(_textEditingController.text.isEmpty) {
+        _store.empty = true;
+      } else {
+        _store.empty = false;
+      }
+    });
+
     super.initState();
   }
 
@@ -70,11 +86,14 @@ class _FileListScreenState extends State<FileListScreen> {
                     decoration: InputDecoration(
                       hintText: tr("hint.search"),
                     ),
+                    onChanged: (value) => _store.term = value,
                   ),
                 ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.search),
+                Observer(
+                  builder: (_) => IconButton(
+                    onPressed: () => !_store.focused && !_store.empty ? _onCleanTap() : _onSearchTap(),
+                    icon: Icon(!_store.focused && !_store.empty ? Icons.close : Icons.search),
+                  ),
                 ),
               ],
             ),
@@ -177,5 +196,19 @@ class _FileListScreenState extends State<FileListScreen> {
     _store.getCaffFiles(
       onError: _showSnackBar,
     );
+  }
+
+  void _onSearchTap() {
+    FocusScope.of(context).unfocus();
+  }
+
+  void _onCleanTap() {
+    _textEditingController.text = "";
+    _store.term = "";
+    _search();
+  }
+
+  void _search() {
+    _store.getCaffFiles(onError: _showSnackBar);
   }
 }

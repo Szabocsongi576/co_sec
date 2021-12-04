@@ -162,7 +162,7 @@ class CaffApi {
     );
   }
 
-  Future<Response<List<Caff>>> searchCaffByName(
+  Future<Response<List<ConvertedCaff>>> searchCaffByName(
       String name, {
         CancelToken? cancelToken,
         Map<String, dynamic>? headers,
@@ -186,12 +186,13 @@ class CaffApi {
       ].first,
     );
 
-    dynamic _bodyData = {
-      "name": name,
-    };
+    dynamic _bodyData;
 
     final _response = await _dio.request<dynamic>(
       "$mapping/unauth/search",
+      queryParameters: {
+        "name": name,
+      },
       data: _bodyData,
       options: _options,
       cancelToken: cancelToken,
@@ -199,13 +200,13 @@ class CaffApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    List<Caff> list = [];
+    List<ConvertedCaff> list = [];
     List<dynamic> data = _response.data;
     data.forEach((json) {
-      list.add(Caff.fromJson(json));
+      list.add(ConvertedCaff.fromJson(json));
     });
 
-    return Response<List<Caff>>(
+    return Response<List<ConvertedCaff>>(
       data: list,
       headers: _response.headers,
       isRedirect: _response.isRedirect,
