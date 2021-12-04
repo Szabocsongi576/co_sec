@@ -1,6 +1,5 @@
 package com.cosec.backend.repository;
 
-import com.cosec.backend.models.Caff;
 import com.cosec.backend.models.Comment;
 import org.springframework.data.mongodb.repository.MongoRepository;
 

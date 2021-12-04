@@ -1,15 +1,9 @@
 package com.cosec.backend.controllers;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
-import com.cosec.backend.models.*;
+import com.cosec.backend.models.Caff;
+import com.cosec.backend.models.Role;
+import com.cosec.backend.models.RoleType;
+import com.cosec.backend.models.User;
 import com.cosec.backend.payload.request.CaffRequest;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
@@ -30,6 +24,17 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.stream.Collectors;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController

@@ -4,24 +4,19 @@ import com.cosec.backend.models.Caff;
 import com.cosec.backend.models.Role;
 import com.cosec.backend.models.RoleType;
 import com.cosec.backend.models.User;
-import com.cosec.backend.payload.request.CaffRequest;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
 import com.cosec.backend.repository.CaffRepository;
-import com.cosec.backend.repository.CommentRepository;
 import com.cosec.backend.repository.RoleRepository;
 import com.cosec.backend.repository.UserRepository;
 import com.cosec.backend.security.jwt.AuthEntryPointJwt;
 import com.cosec.backend.security.jwt.JwtUtils;
 import com.cosec.backend.security.services.UserDetailsImpl;
 import com.cosec.backend.security.services.UserDetailsServiceImpl;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import org.bson.types.Binary;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -29,11 +24,7 @@ import org.springframework.boot.web.servlet.server.Encoding;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.context.SecurityContext;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -41,14 +32,15 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
 
 import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
@@ -189,7 +181,7 @@ class UserControllerTest {
         this.mvc.perform(get("/users/auth/1/caffs")
                 .with(user(user))).andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("[{\"id\":\"1\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"http://localhost:8080/caffs/unauth/image/1\"},{\"id\":\"2\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"http://localhost:8080/caffs/unauth/image/2\"}]"));
+                .andExpect(content().string("[{\"id\":\"1\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"/caffs/unauth/image/1\"},{\"id\":\"2\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"/caffs/unauth/image/2\"}]"));
     }
 
     @Test
