@@ -214,7 +214,9 @@ class CaffControllerTest {
 
     @Test
     void createComment_Unauthorized() throws Exception {
-        this.mvc.perform(post("/caffs/auth/comments")).andDo(print())
+        UserDetailsImpl user = new UserDetailsImpl(null, null, null, null, null);
+        this.mvc.perform(post("/caffs/auth/comments")
+                        .with(user(user))).andDo(print())
                 .andExpect(status().isForbidden());
     }
 
