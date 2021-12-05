@@ -22,7 +22,7 @@ public class Registration {
 
     public Registration(@NotBlank @Size(min = 3, max = 20) String username,
                         @NotBlank @Size(max = 40)String email,
-                        Set<String> roles, @NotBlank
+                        Set<String> roles, @NotBlank @Size(min = 8)
                                 String password) {
         this.username = username;
         this.email = email;

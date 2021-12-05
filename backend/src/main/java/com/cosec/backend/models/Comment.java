@@ -19,6 +19,15 @@ public class Comment {
         this.text = text;
     }
 
+    public Comment(String userId, String caffId, String text) {
+        this.userId = userId;
+        this.caffId = caffId;
+        this.text = text;
+    }
+
+    public Comment() {
+    }
+
     public String getId() {
         return id;
     }
