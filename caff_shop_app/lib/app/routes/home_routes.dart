@@ -1,3 +1,4 @@
+import 'package:caff_shop_app/app/models/converted_caff.dart';
 import 'package:caff_shop_app/app/ui/screens/file_details_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/file_list_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/profile_screen.dart';
@@ -27,7 +28,7 @@ class HomeRoutes {
         return PageRouteBuilder<dynamic>(
           settings: settings,
           pageBuilder: (context, animation, secondaryAnimation) => FileDetailsScreen(
-            url: settings.arguments as String,
+            caff: settings.arguments as ConvertedCaff,
           ),
           transitionDuration: Duration(milliseconds: 300),
           transitionsBuilder: _slideTransitionsBuilder,

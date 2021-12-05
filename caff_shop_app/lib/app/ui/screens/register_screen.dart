@@ -213,8 +213,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
   Future<void> _onRegisterPressed() async {
     await unFocus();
     _store.register(
-      onSuccess: () {
-        Navigator.of(context).pushNamed(Routes.home);
+      onRegisterSuccess: (response) => _showSnackBar(response.message),
+      onLoginSuccess: (response) {
+        Navigator.of(context).pushNamed(Routes.home, arguments: response);
       },
       onError: _showSnackBar,
     );

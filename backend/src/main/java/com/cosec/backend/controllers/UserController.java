@@ -63,7 +63,7 @@ public class UserController {
     CaffRepository caffRepository;
 
     UserController() throws IOException {
-        fh = new FileHandler("D:\\BME\\Msc\\2\\Számbiz\\UserController.log");
+        fh = new FileHandler("E:/work/co_sec/UserController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);

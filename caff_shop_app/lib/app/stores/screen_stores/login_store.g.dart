@@ -9,18 +9,18 @@ part of 'login_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$LoginStore on _LoginStore, Store {
-  final _$emailAtom = Atom(name: '_LoginStore.email');
+  final _$usernameAtom = Atom(name: '_LoginStore.username');
 
   @override
-  String get email {
-    _$emailAtom.reportRead();
-    return super.email;
+  String get username {
+    _$usernameAtom.reportRead();
+    return super.username;
   }
 
   @override
-  set email(String value) {
-    _$emailAtom.reportWrite(value, super.email, () {
-      super.email = value;
+  set username(String value) {
+    _$usernameAtom.reportWrite(value, super.username, () {
+      super.username = value;
     });
   }
 
@@ -39,18 +39,18 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
-  final _$emailErrorAtom = Atom(name: '_LoginStore.emailError');
+  final _$usernameErrorAtom = Atom(name: '_LoginStore.usernameError');
 
   @override
-  String? get emailError {
-    _$emailErrorAtom.reportRead();
-    return super.emailError;
+  String? get usernameError {
+    _$usernameErrorAtom.reportRead();
+    return super.usernameError;
   }
 
   @override
-  set emailError(String? value) {
-    _$emailErrorAtom.reportWrite(value, super.emailError, () {
-      super.emailError = value;
+  set usernameError(String? value) {
+    _$usernameErrorAtom.reportWrite(value, super.usernameError, () {
+      super.usernameError = value;
     });
   }
 
@@ -84,11 +84,18 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
+  final _$initAsyncAction = AsyncAction('_LoginStore.init');
+
+  @override
+  Future<void> init() {
+    return _$initAsyncAction.run(() => super.init());
+  }
+
   final _$loginAsyncAction = AsyncAction('_LoginStore.login');
 
   @override
   Future<void> login(
-      {required void Function() onSuccess,
+      {required void Function(LoginResponse) onSuccess,
       required void Function(String) onError}) {
     return _$loginAsyncAction
         .run(() => super.login(onSuccess: onSuccess, onError: onError));
@@ -97,9 +104,9 @@ mixin _$LoginStore on _LoginStore, Store {
   @override
   String toString() {
     return '''
-email: ${email},
+username: ${username},
 password: ${password},
-emailError: ${emailError},
+usernameError: ${usernameError},
 passwordError: ${passwordError},
 obscurePassword: ${obscurePassword}
     ''';

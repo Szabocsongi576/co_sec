@@ -1,4 +1,12 @@
+import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/error_handler.dart';
+import 'package:caff_shop_app/app/api/interceptors/save_token_interceptor.dart';
+import 'package:caff_shop_app/app/models/login_request.dart';
+import 'package:caff_shop_app/app/models/login_response.dart';
+import 'package:caff_shop_app/app/models/registration_request.dart';
+import 'package:caff_shop_app/app/models/response.dart';
 import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobx/mobx.dart';
 import 'package:validators/validators.dart';
@@ -70,7 +78,8 @@ abstract class _RegisterStore with Store {
   // actions:-------------------------------------------------------------------
   @action
   Future<void> register({
-    required void Function() onSuccess,
+    required void Function(MessageResponse) onRegisterSuccess,
+    required void Function(LoginResponse) onLoginSuccess,
     required void Function(String) onError,
   }) async {
     if (!validate()) {
@@ -79,8 +88,39 @@ abstract class _RegisterStore with Store {
 
     loadingStore.stackedLoading = true;
 
-    await Future.delayed(Duration(milliseconds: 500));
-    onSuccess();
+    try {
+      RegistrationRequest registrationRequest = RegistrationRequest(
+          username: username,
+          email: email,
+          password: password,
+      );
+      Response<MessageResponse> registrationResponse =
+      await Api()
+          .getUserApi()
+          .registerUser(registrationRequest);
+
+      if (registrationResponse.isSuccess()) {
+        onRegisterSuccess(registrationResponse.data!);
+      }
+
+      LoginRequest loginRequest = LoginRequest(
+        username: username,
+        password: password,
+      );
+      Response<LoginResponse> loginResponse =
+      await Api(interceptors: [SaveBearerTokenInterceptor()])
+          .getUserApi()
+          .authenticateUser(loginRequest);
+
+      if (loginResponse.isSuccess()) {
+        onLoginSuccess(loginResponse.data!);
+      }
+    } on DioError catch (error) {
+      handleDioError(
+        error: error,
+        onError: onError,
+      );
+    }
 
     loadingStore.stackedLoading = false;
   }

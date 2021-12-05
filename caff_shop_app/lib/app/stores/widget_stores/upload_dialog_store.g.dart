@@ -24,10 +24,49 @@ mixin _$UploadDialogStore on _UploadDialogStore, Store {
     });
   }
 
+  final _$nameAtom = Atom(name: '_UploadDialogStore.name');
+
+  @override
+  String get name {
+    _$nameAtom.reportRead();
+    return super.name;
+  }
+
+  @override
+  set name(String value) {
+    _$nameAtom.reportWrite(value, super.name, () {
+      super.name = value;
+    });
+  }
+
+  final _$errorAtom = Atom(name: '_UploadDialogStore.error');
+
+  @override
+  String? get error {
+    _$errorAtom.reportRead();
+    return super.error;
+  }
+
+  @override
+  set error(String? value) {
+    _$errorAtom.reportWrite(value, super.error, () {
+      super.error = value;
+    });
+  }
+
+  final _$getCaffAsyncAction = AsyncAction('_UploadDialogStore.getCaff');
+
+  @override
+  Future<void> getCaff({required void Function(String) onSuccess}) {
+    return _$getCaffAsyncAction.run(() => super.getCaff(onSuccess: onSuccess));
+  }
+
   @override
   String toString() {
     return '''
-file: ${file}
+file: ${file},
+name: ${name},
+error: ${error}
     ''';
   }
 }

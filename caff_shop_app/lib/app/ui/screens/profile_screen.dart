@@ -1,8 +1,11 @@
+import 'package:caff_shop_app/app/models/login_response.dart';
+import 'package:caff_shop_app/app/routes/routes.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/profile_store.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -13,18 +16,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final ProfileStore _store = ProfileStore();
 
   @override
-  void initState() {
-    _store.getProfile();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Loading(
       store: _store.loadingStore,
       isExpandable: false,
       appBar: AppBar(
         title: Text(tr('appbar.profile')),
+        actions: [
+          IconButton(
+            onPressed: _onLogoutTap,
+            icon: Icon(Icons.logout),
+          ),
+        ],
       ),
       body: Container(
         padding: EdgeInsets.all(20.r),
@@ -46,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    _store.name,
+                    Provider.of<LoginResponse>(context).username,
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ),
@@ -69,7 +72,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    _store.email,
+                    Provider.of<LoginResponse>(context).email,
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ),
@@ -78,6 +81,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ],
         ),
       ),
+    );
+  }
+
+  void _onLogoutTap() {
+    _store.logout(
+      onSuccess: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context, rootNavigator: true)
+            .pushReplacementNamed(Routes.login);
+      },
     );
   }
 }
