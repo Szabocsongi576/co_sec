@@ -1,9 +1,9 @@
 import 'dart:typed_data';
 
 import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
-import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:caff_shop_app/app/models/role_type.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_details_store.dart';
 import 'package:caff_shop_app/app/ui/widget/comment_list_item.dart';
@@ -15,7 +15,6 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gif_view/gif_view.dart';
-import 'package:provider/provider.dart';
 
 class FileDetailsScreen extends StatefulWidget {
   final ConvertedCaff caff;
@@ -39,9 +38,7 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
   void initState() {
     _store = FileDetailsStore(
       caff: widget.caff,
-      isAdmin: Provider.of<LoginResponse>(context, listen: false)
-          .roles
-          .contains(RoleType.ROLE_ADMIN),
+      isAdmin: ApiUtil().loginResponse?.roles.contains(RoleType.ROLE_ADMIN) ?? false,
     );
     _store.init(onError: (message, func) => _showSnackBar(message, func));
 
@@ -60,29 +57,32 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
             padding: EdgeInsets.all(20.r),
             child: Column(
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextFormField(
-                        controller: _textEditingController,
-                        focusNode: _focusNode,
-                        maxLines: null,
-                        keyboardType: TextInputType.multiline,
-                        decoration: InputDecoration(
-                          hintText: tr("hint.comment"),
+                if (ApiUtil().loginResponse != null)
+                  Padding(
+                    padding: EdgeInsets.only(bottom: 20.h),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: TextFormField(
+                            controller: _textEditingController,
+                            focusNode: _focusNode,
+                            maxLines: null,
+                            keyboardType: TextInputType.multiline,
+                            decoration: InputDecoration(
+                              hintText: tr("hint.comment"),
+                            ),
+                            onChanged: (value) {
+                              _store.text = value;
+                            },
+                          ),
                         ),
-                        onChanged: (value) {
-                          _store.text = value;
-                        },
-                      ),
+                        IconButton(
+                          onPressed: () => _onSendButtonPressed(context),
+                          icon: Icon(Icons.send),
+                        ),
+                      ],
                     ),
-                    IconButton(
-                      onPressed: () => _onSendButtonPressed(context),
-                      icon: Icon(Icons.send),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20.h),
+                  ),
                 Observer(
                   builder: (_) => ListView.separated(
                     primary: false,
@@ -201,7 +201,7 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
                     Icons.arrow_back,
                     color: ColorConstants.white,
                   ),
-                  onPressed: () => _onBackArrowPressed,
+                  onPressed: () => _onBackArrowPressed(),
                 ),
               ),
             ),
@@ -259,8 +259,8 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
   Future<void> _onSendButtonPressed(BuildContext context) async {
     await unFocus();
     _store.createComment(
-      userId: Provider.of<LoginResponse>(context, listen: false).id,
-      username: Provider.of<LoginResponse>(context, listen: false).username,
+      userId: ApiUtil().loginResponse!.id,
+      username: ApiUtil().loginResponse!.username,
       onSuccess: () => _textEditingController.text = "",
       onError: (message) => _showSnackBar(message),
     );

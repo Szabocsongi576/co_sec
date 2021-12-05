@@ -95,7 +95,7 @@ mixin _$LoginStore on _LoginStore, Store {
 
   @override
   Future<void> login(
-      {required void Function(LoginResponse) onSuccess,
+      {required void Function() onSuccess,
       required void Function(String) onError}) {
     return _$loginAsyncAction
         .run(() => super.login(onSuccess: onSuccess, onError: onError));

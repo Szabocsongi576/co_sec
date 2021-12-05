@@ -1,6 +1,5 @@
 import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/api/caff_api.dart';
-import 'package:caff_shop_app/app/api/interceptors/my_log_interceptor.dart';
 import 'package:caff_shop_app/app/api/user_api.dart';
 import 'package:dio/dio.dart';
 
@@ -18,7 +17,6 @@ class Api {
       ),
     );
 
-    this.dio.interceptors.add(MyLogInterceptor());
     if(interceptors != null) {
       this.dio.interceptors.addAll(interceptors);
     }

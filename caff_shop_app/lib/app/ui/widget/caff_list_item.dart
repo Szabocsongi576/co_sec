@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:caff_shop_app/app/api/api.dart';
-import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
 import 'package:dio/dio.dart';

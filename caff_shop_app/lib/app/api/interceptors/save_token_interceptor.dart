@@ -16,9 +16,7 @@ class SaveBearerTokenInterceptor extends Interceptor {
 
   @override
   void onResponse(Response<dynamic> response, ResponseInterceptorHandler handler) {
-    LoginResponse resource = LoginResponse.fromJson(response.data);
-
-    ApiUtil().bearerToken = resource.accessToken;
+    ApiUtil().loginResponse = LoginResponse.fromJson(response.data);
 
     return super.onResponse(response, handler);
   }

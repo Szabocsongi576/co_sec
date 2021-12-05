@@ -9,7 +9,6 @@ import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:mobx/mobx.dart';
-import 'package:validators/validators.dart';
 
 part 'login_store.g.dart';
 
@@ -69,7 +68,7 @@ abstract class _LoginStore with Store {
 
   @action
   Future<void> login({
-    required void Function(LoginResponse) onSuccess,
+    required void Function() onSuccess,
     required void Function(String) onError,
   }) async {
     if (!validate()) {
@@ -89,7 +88,7 @@ abstract class _LoginStore with Store {
           .authenticateUser(request);
 
       if (response.isSuccess()) {
-        onSuccess(response.data!);
+        onSuccess();
       }
     } on DioError catch (error) {
       handleDioError(

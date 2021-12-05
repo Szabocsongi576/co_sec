@@ -53,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
             children: [
               SizedBox(),
               _buildLoginArea(),
-              _buildRegisterArea(),
+              _buildRegisterOrContinueArea(),
             ],
           ),
         ),
@@ -75,6 +75,8 @@ class _LoginScreenState extends State<LoginScreen> {
               _buildPassword(),
               SizedBox(height: 25.h),
               _buildLoginButton(),
+              SizedBox(height: 5.h),
+              _buildContinueButton(),
             ],
           ),
         ),
@@ -144,7 +146,22 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _buildRegisterArea() {
+  Widget _buildContinueButton() {
+    return Container(
+      child: Row(
+        children: [
+          Expanded(
+            child: ElevatedButton(
+              onPressed: _onContinuePressed,
+              child: Text(tr('button.continue')),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildRegisterOrContinueArea() {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: 20.h),
       child: Column(
@@ -164,7 +181,6 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ],
           ),
-          //SizedBox(height: 5.h),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -205,11 +221,15 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _onLoginPressed() async {
     await unFocus();
     _store.login(
-      onSuccess: (response) {
-        Navigator.of(context).pushNamed(Routes.home, arguments: response);
+      onSuccess: () {
+        Navigator.of(context).pushNamed(Routes.home);
       },
       onError: _showSnackBar,
     );
+  }
+  Future<void> _onContinuePressed() async {
+    await unFocus();
+    Navigator.of(context).pushNamed(Routes.home);
   }
 
   Future<void> _onRegisterTap() async {

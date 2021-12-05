@@ -1,4 +1,3 @@
-import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:caff_shop_app/app/ui/screens/home_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/login_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/register_screen.dart';
@@ -32,9 +31,7 @@ class Routes {
       case home:
         return PageRouteBuilder<dynamic>(
           settings: settings,
-          pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(
-            loginResponse: settings.arguments as LoginResponse,
-          ),
+          pageBuilder: (context, animation, secondaryAnimation) => HomeScreen(),
           transitionDuration: Duration(milliseconds: 300),
           transitionsBuilder: _fadeTransitionsBuilder,
         );
@@ -54,21 +51,6 @@ class Routes {
 
     return FadeTransition(
       opacity: animation.drive(tween),
-      child: child,
-    );
-  }
-
-  static Widget _slideTransitionsBuilder(
-      context, animation, secondaryAnimation, child) {
-    var tween = Tween(
-      begin: Offset(0.0, 1.0),
-      end: Offset.zero,
-    ).chain(
-      CurveTween(curve: Curves.easeOut),
-    );
-
-    return SlideTransition(
-      position: animation.drive(tween),
       child: child,
     );
   }

@@ -45,7 +45,7 @@ abstract class _FileDetailsStore with Store {
 
     try {
       Response<List<Comment>> response =
-      await Api(interceptors: [AddTokenInterceptor()])
+      await Api()
           .getCaffApi()
           .getAllComment(caff.id);
 
@@ -150,7 +150,7 @@ abstract class _FileDetailsStore with Store {
 
     try {
       Response<Uint8List> response =
-          await Api(interceptors: [AddTokenInterceptor()])
+          await Api()
               .getCaffApi()
               .downloadCaffById(caff.id);
 

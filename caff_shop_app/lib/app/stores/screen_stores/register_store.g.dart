@@ -170,7 +170,7 @@ mixin _$RegisterStore on _RegisterStore, Store {
   @override
   Future<void> register(
       {required void Function(MessageResponse) onRegisterSuccess,
-      required void Function(LoginResponse) onLoginSuccess,
+      required void Function() onLoginSuccess,
       required void Function(String) onError}) {
     return _$registerAsyncAction.run(() => super.register(
         onRegisterSuccess: onRegisterSuccess,

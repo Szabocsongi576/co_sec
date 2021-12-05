@@ -1,9 +1,10 @@
+import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/caff_request.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
-import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:caff_shop_app/app/models/role_type.dart';
 import 'package:caff_shop_app/app/routes/home_routes.dart';
+import 'package:caff_shop_app/app/routes/routes.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_list_store.dart';
 import 'package:caff_shop_app/app/ui/widget/caff_list_item.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
@@ -13,7 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class FileListScreen extends StatefulWidget {
   const FileListScreen({Key? key}) : super(key: key);
@@ -31,9 +31,8 @@ class _FileListScreenState extends State<FileListScreen> {
   @override
   void initState() {
     _store = FileListStore(
-      isAdmin: Provider.of<LoginResponse>(context, listen: false)
-          .roles
-          .contains(RoleType.ROLE_ADMIN),
+      isAdmin:
+          ApiUtil().loginResponse?.roles.contains(RoleType.ROLE_ADMIN) ?? false,
     );
     _store.getCaffFiles(onError: _showSnackBar);
 
@@ -75,15 +74,26 @@ class _FileListScreenState extends State<FileListScreen> {
               onPressed: _onUserListTap,
               icon: Icon(Icons.people),
             ),
-          IconButton(
-            padding: EdgeInsets.all(10.r),
-            visualDensity: VisualDensity(
-              horizontal: -4.0,
-              vertical: -4.0,
+          if (ApiUtil().loginResponse != null)
+            IconButton(
+              padding: EdgeInsets.all(10.r),
+              visualDensity: VisualDensity(
+                horizontal: -4.0,
+                vertical: -4.0,
+              ),
+              onPressed: _onProfileTap,
+              icon: Icon(Icons.person),
             ),
-            onPressed: _onProfileTap,
-            icon: Icon(Icons.person),
-          ),
+          if (ApiUtil().loginResponse == null)
+            IconButton(
+              padding: EdgeInsets.all(10.r),
+              visualDensity: VisualDensity(
+                horizontal: -4.0,
+                vertical: -4.0,
+              ),
+              onPressed: _onLogoutTap,
+              icon: Icon(Icons.logout),
+            ),
         ],
       ),
       body: Container(
@@ -136,15 +146,17 @@ class _FileListScreenState extends State<FileListScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        child: Icon(
-          Icons.file_upload,
-          color: ColorConstants.white,
-        ),
-        onPressed: () => _onFABPressed(
-          id: Provider.of<LoginResponse>(context, listen: false).id,
-        ),
-      ),
+      floatingActionButton: (ApiUtil().loginResponse != null)
+          ? FloatingActionButton(
+              child: Icon(
+                Icons.file_upload,
+                color: ColorConstants.white,
+              ),
+              onPressed: () => _onFABPressed(
+                id: ApiUtil().loginResponse!.id,
+              ),
+            )
+          : null,
     );
   }
 
@@ -217,6 +229,16 @@ class _FileListScreenState extends State<FileListScreen> {
     Navigator.of(context).pushNamed(HomeRoutes.profile);
     _store.getCaffFiles(
       onError: _showSnackBar,
+    );
+  }
+
+  void _onLogoutTap() {
+    _store.logout(
+      onSuccess: () {
+        Navigator.of(context, rootNavigator: true).pop();
+        Navigator.of(context, rootNavigator: true)
+            .pushReplacementNamed(Routes.login);
+      },
     );
   }
 

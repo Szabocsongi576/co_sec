@@ -1,5 +1,4 @@
 import 'package:caff_shop_app/app/config/color_constants.dart';
-import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:caff_shop_app/app/models/user.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/user_details_store.dart';
 import 'package:caff_shop_app/app/ui/widget/edit_dialog.dart';
@@ -8,7 +7,6 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class UserDetailsScreen extends StatefulWidget {
   final User user;

@@ -34,7 +34,8 @@
     "login": "Bejelentkezés",
     "register": "Regisztráció",
     "upload": "Feltöltés",
-    "edit": "Módosítás"
+    "edit": "Módosítás",
+    "continue": "Bejelentkezés kihagyása"
   },
   "add_file": "Válasszon ki egy fájlt!",
   "refresh": "Újra",

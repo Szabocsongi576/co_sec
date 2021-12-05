@@ -79,7 +79,7 @@ abstract class _RegisterStore with Store {
   @action
   Future<void> register({
     required void Function(MessageResponse) onRegisterSuccess,
-    required void Function(LoginResponse) onLoginSuccess,
+    required void Function() onLoginSuccess,
     required void Function(String) onError,
   }) async {
     if (!validate()) {
@@ -113,7 +113,7 @@ abstract class _RegisterStore with Store {
           .authenticateUser(loginRequest);
 
       if (loginResponse.isSuccess()) {
-        onLoginSuccess(loginResponse.data!);
+        onLoginSuccess();
       }
     } on DioError catch (error) {
       await handleDioError(
