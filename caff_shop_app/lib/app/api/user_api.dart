@@ -169,7 +169,7 @@ class UserApi {
     );
   }
 
-  Future<Response<void>> deleteUserById(
+  Future<Response<MessageResponse>> deleteUserById(
       String id, {
         CancelToken? cancelToken,
         Map<String, dynamic>? headers,
@@ -204,8 +204,8 @@ class UserApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return Response<void>(
-      data: null,
+    return Response<MessageResponse>(
+      data: MessageResponse.fromJson(_response.data),
       headers: _response.headers,
       isRedirect: _response.isRedirect,
       requestOptions: _response.requestOptions,

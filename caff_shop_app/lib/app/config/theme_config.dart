@@ -38,6 +38,7 @@ class ThemeConfig {
       floatingActionButtonTheme: FloatingActionButtonThemeData(
         backgroundColor: ColorConstants.primary,
       ),
+      dividerColor: ColorConstants.black.withOpacity(0.4),
       fontFamily: 'Poppins',
       textTheme: TextTheme(
         headline1: TextStyle(

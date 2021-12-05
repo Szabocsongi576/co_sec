@@ -31,15 +31,14 @@ class _FileListScreenState extends State<FileListScreen> {
   @override
   void initState() {
     _store = FileListStore(
-      isAdmin: Provider
-          .of<LoginResponse>(context, listen: false)
+      isAdmin: Provider.of<LoginResponse>(context, listen: false)
           .roles
           .contains(RoleType.ROLE_ADMIN),
     );
     _store.getCaffFiles(onError: _showSnackBar);
 
     _focusNode.addListener(() {
-      if(!_focusNode.hasFocus) {
+      if (!_focusNode.hasFocus) {
         _store.focused = false;
         _search();
       } else {
@@ -47,7 +46,7 @@ class _FileListScreenState extends State<FileListScreen> {
       }
     });
     _textEditingController.addListener(() {
-      if(_textEditingController.text.isEmpty) {
+      if (_textEditingController.text.isEmpty) {
         _store.empty = true;
       } else {
         _store.empty = false;
@@ -66,7 +65,22 @@ class _FileListScreenState extends State<FileListScreen> {
         title: Text(tr('appbar.caff_browser')),
         automaticallyImplyLeading: false,
         actions: [
+          if (_store.isAdmin)
+            IconButton(
+              padding: EdgeInsets.all(10.r),
+              visualDensity: VisualDensity(
+                horizontal: -4.0,
+                vertical: -4.0,
+              ),
+              onPressed: _onUserListTap,
+              icon: Icon(Icons.people),
+            ),
           IconButton(
+            padding: EdgeInsets.all(10.r),
+            visualDensity: VisualDensity(
+              horizontal: -4.0,
+              vertical: -4.0,
+            ),
             onPressed: _onProfileTap,
             icon: Icon(Icons.person),
           ),
@@ -91,29 +105,33 @@ class _FileListScreenState extends State<FileListScreen> {
                 ),
                 Observer(
                   builder: (_) => IconButton(
-                    onPressed: () => !_store.focused && !_store.empty ? _onCleanTap() : _onSearchTap(),
-                    icon: Icon(!_store.focused && !_store.empty ? Icons.close : Icons.search),
+                    onPressed: () => !_store.focused && !_store.empty
+                        ? _onCleanTap()
+                        : _onSearchTap(),
+                    icon: Icon(!_store.focused && !_store.empty
+                        ? Icons.close
+                        : Icons.search),
                   ),
                 ),
               ],
             ),
             SizedBox(height: 20.h),
             Observer(
-              builder: (_) =>
-                  GridView.count(
-                    primary: false,
-                    shrinkWrap: true,
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 10.r,
-                    crossAxisSpacing: 10.r,
-                    children: _store.caffList.map((ConvertedCaff caff) {
-                      return CaffListItem(
-                        caff: caff,
-                        onTap: () => _onItemTap(caff),
-                        onDelete: _store.isAdmin ? () => _onItemDeleteTap(caff) : null,
-                      );
-                    }).toList(),
-                  ),
+              builder: (_) => GridView.count(
+                primary: false,
+                shrinkWrap: true,
+                crossAxisCount: 2,
+                mainAxisSpacing: 10.r,
+                crossAxisSpacing: 10.r,
+                children: _store.caffList.map((ConvertedCaff caff) {
+                  return CaffListItem(
+                    caff: caff,
+                    onTap: () => _onItemTap(caff),
+                    onDelete:
+                        _store.isAdmin ? () => _onItemDeleteTap(caff) : null,
+                  );
+                }).toList(),
+              ),
             ),
           ],
         ),
@@ -123,12 +141,9 @@ class _FileListScreenState extends State<FileListScreen> {
           Icons.file_upload,
           color: ColorConstants.white,
         ),
-        onPressed: () =>
-            _onFABPressed(
-              id: Provider
-                  .of<LoginResponse>(context, listen: false)
-                  .id,
-            ),
+        onPressed: () => _onFABPressed(
+          id: Provider.of<LoginResponse>(context, listen: false).id,
+        ),
       ),
     );
   }
@@ -189,6 +204,13 @@ class _FileListScreenState extends State<FileListScreen> {
         onError: _showSnackBar,
       );
     }
+  }
+
+  void _onUserListTap() {
+    Navigator.of(context).pushNamed(HomeRoutes.userList);
+    _store.getCaffFiles(
+      onError: _showSnackBar,
+    );
   }
 
   void _onProfileTap() {
