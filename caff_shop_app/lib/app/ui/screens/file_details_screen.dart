@@ -5,7 +5,6 @@ import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
 import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:caff_shop_app/app/models/role_type.dart';
-import 'package:caff_shop_app/app/models/user.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_details_store.dart';
 import 'package:caff_shop_app/app/ui/widget/comment_list_item.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
@@ -91,14 +90,8 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
                     separatorBuilder: (context, index) => Divider(),
                     itemCount: _store.comments.length,
                     itemBuilder: (_, index) {
-                      User? user;
-                      try {
-                        user = _store.users.firstWhere(
-                            (e) => e.id == _store.comments[index].userId);
-                      } on StateError catch (_) {}
-
                       return CommentListItem(
-                        userName: user?.username ?? "",
+                        userName: _store.comments[index].username,
                         text: _store.comments[index].text,
                         onDelete: _store.isAdmin
                             ? () =>
@@ -208,7 +201,7 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
                     Icons.arrow_back,
                     color: ColorConstants.white,
                   ),
-                  onPressed: _onBackArrowPressed,
+                  onPressed: () => _onBackArrowPressed,
                 ),
               ),
             ),
@@ -253,24 +246,28 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
     );
   }
 
-  void _onBackArrowPressed() {
+  Future<void> _onBackArrowPressed() async {
+    await unFocus();
     Navigator.of(context).pop();
   }
 
-  void _onCaffDeleteTap() {
+  Future<void> _onCaffDeleteTap() async {
+    await unFocus();
     Navigator.of(context).pop(true);
   }
 
-  void _onSendButtonPressed(BuildContext context) {
-    String userId = Provider.of<LoginResponse>(context, listen: false).id;
+  Future<void> _onSendButtonPressed(BuildContext context) async {
+    await unFocus();
     _store.createComment(
-      userId: userId,
+      userId: Provider.of<LoginResponse>(context, listen: false).id,
+      username: Provider.of<LoginResponse>(context, listen: false).username,
       onSuccess: () => _textEditingController.text = "",
       onError: (message) => _showSnackBar(message),
     );
   }
 
-  void _onCommentDeleteTap(String commentId) {
+  Future<void> _onCommentDeleteTap(String commentId) async {
+    await unFocus();
     _store.deleteComment(
       commentId: commentId,
       onSuccess: (response) => _showSnackBar(response.message),
@@ -278,10 +275,18 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
     );
   }
 
-  void _onDownloadTap() {
+  Future<void> _onDownloadTap() async {
+    await unFocus();
     _store.downloadCaff(
       onSuccess: () => _showSnackBar(tr('download_success')),
       onError: (message) => _showSnackBar(message),
     );
+  }
+
+  Future<void> unFocus() async {
+    if (FocusScope.of(context).hasFocus) {
+      FocusScope.of(context).unfocus();
+      await Future<void>.delayed(Duration(milliseconds: 300));
+    }
   }
 }

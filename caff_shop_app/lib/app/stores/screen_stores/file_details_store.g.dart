@@ -39,41 +39,11 @@ mixin _$FileDetailsStore on _FileDetailsStore, Store {
     });
   }
 
-  final _$usersAtom = Atom(name: '_FileDetailsStore.users');
-
-  @override
-  ObservableList<User> get users {
-    _$usersAtom.reportRead();
-    return super.users;
-  }
-
-  @override
-  set users(ObservableList<User> value) {
-    _$usersAtom.reportWrite(value, super.users, () {
-      super.users = value;
-    });
-  }
-
   final _$initAsyncAction = AsyncAction('_FileDetailsStore.init');
 
   @override
   Future<void> init({required void Function(String, void Function()) onError}) {
     return _$initAsyncAction.run(() => super.init(onError: onError));
-  }
-
-  final _$getCaffDetailsAsyncAction =
-      AsyncAction('_FileDetailsStore.getCaffDetails');
-
-  @override
-  Future<void> getCaffDetails() {
-    return _$getCaffDetailsAsyncAction.run(() => super.getCaffDetails());
-  }
-
-  final _$getAllUserAsyncAction = AsyncAction('_FileDetailsStore.getAllUser');
-
-  @override
-  Future<void> getAllUser() {
-    return _$getAllUserAsyncAction.run(() => super.getAllUser());
   }
 
   final _$createCommentAsyncAction =
@@ -82,10 +52,14 @@ mixin _$FileDetailsStore on _FileDetailsStore, Store {
   @override
   Future<void> createComment(
       {required String userId,
+      required String username,
       required void Function() onSuccess,
       required void Function(String) onError}) {
-    return _$createCommentAsyncAction.run(() => super
-        .createComment(userId: userId, onSuccess: onSuccess, onError: onError));
+    return _$createCommentAsyncAction.run(() => super.createComment(
+        userId: userId,
+        username: username,
+        onSuccess: onSuccess,
+        onError: onError));
   }
 
   final _$deleteCommentAsyncAction =
@@ -115,8 +89,7 @@ mixin _$FileDetailsStore on _FileDetailsStore, Store {
   String toString() {
     return '''
 text: ${text},
-comments: ${comments},
-users: ${users}
+comments: ${comments}
     ''';
   }
 }

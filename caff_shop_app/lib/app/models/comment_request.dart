@@ -1,11 +1,13 @@
 class CommentRequest {
   final String userId;
   final String caffId;
+  final String username;
   final String text;
 
   CommentRequest({
     required this.userId,
     required this.caffId,
+    required this.username,
     required this.text,
   });
 
@@ -13,6 +15,7 @@ class CommentRequest {
     return CommentRequest(
       userId: json["userId"],
       caffId: json["caffId"],
+      username: json["username"],
       text: json["text"],
     );
   }
@@ -21,6 +24,7 @@ class CommentRequest {
     return {
       "userId": userId,
       "caffId": caffId,
+      "username": username,
       "text": text,
     };
   }
