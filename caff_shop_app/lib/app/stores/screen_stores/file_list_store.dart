@@ -1,4 +1,5 @@
 import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/api/error_handler.dart';
 import 'package:caff_shop_app/app/api/interceptors/add_token_interceptor.dart';
 import 'package:caff_shop_app/app/models/caff_request.dart';
@@ -51,11 +52,11 @@ abstract class _FileListStore with Store {
       Response<List<ConvertedCaff>> response;
 
       if(term.isEmpty) {
-        response = await Api(interceptors: [AddTokenInterceptor()])
+        response = await Api()
             .getCaffApi()
             .getAll();
       } else {
-        response = await Api(interceptors: [AddTokenInterceptor()])
+        response = await Api()
             .getCaffApi()
             .searchCaffByName(term);
       }
@@ -65,9 +66,12 @@ abstract class _FileListStore with Store {
         caffList.addAll(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => getCaffFiles(
+          onError: onError,
+        ),
       );
     }
 
@@ -98,9 +102,15 @@ abstract class _FileListStore with Store {
         onSuccess(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => createCaff(
+          userId: userId,
+          resource: resource,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 
@@ -126,11 +136,29 @@ abstract class _FileListStore with Store {
         onSuccess(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => deleteCaff(
+          caffId: caffId,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
+
+    loadingStore.stackedLoading = false;
+  }
+
+  @action
+  Future<void> logout({
+    required void Function() onSuccess,
+  }) async {
+    loadingStore.stackedLoading = true;
+
+    await Future.delayed(Duration(milliseconds: 500));
+    ApiUtil().reset();
+    onSuccess();
 
     loadingStore.stackedLoading = false;
   }

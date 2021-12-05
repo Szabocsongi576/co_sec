@@ -14,7 +14,8 @@
     "register": "Regisztráció",
     "caff_browser": "CAFF böngésző",
     "profile": "Profil",
-    "users": "Felhasználók"
+    "users": "Felhasználók",
+    "user_profile": "Felhasználók"
   },
   "hint": {
     "email": "Email",
@@ -32,8 +33,12 @@
   "button": {
     "login": "Bejelentkezés",
     "register": "Regisztráció",
-    "upload": "Feltöltés"
+    "upload": "Feltöltés",
+    "edit": "Módosítás",
+    "continue": "Bejelentkezés kihagyása"
   },
   "add_file": "Válasszon ki egy fájlt!",
-  "refresh": "Újra"
+  "refresh": "Újra",
+  "download_success": "Sikeres letöltés",
+  "edit_data": "Adatok módosítása"
 }

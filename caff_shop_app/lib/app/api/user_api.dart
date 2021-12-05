@@ -169,7 +169,7 @@ class UserApi {
     );
   }
 
-  Future<Response<void>> deleteUserById(
+  Future<Response<MessageResponse>> deleteUserById(
       String id, {
         CancelToken? cancelToken,
         Map<String, dynamic>? headers,
@@ -204,8 +204,8 @@ class UserApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return Response<void>(
-      data: null,
+    return Response<MessageResponse>(
+      data: MessageResponse.fromJson(_response.data),
       headers: _response.headers,
       isRedirect: _response.isRedirect,
       requestOptions: _response.requestOptions,
@@ -216,8 +216,8 @@ class UserApi {
     );
   }
 
-  Future<Response<void>> updateUserById(
-      String id, User resource, {
+  Future<Response<MessageResponse>> updateUserById(
+      User resource, {
         CancelToken? cancelToken,
         Map<String, dynamic>? headers,
         Map<String, dynamic>? extra,
@@ -243,7 +243,7 @@ class UserApi {
     dynamic _bodyData = resource.toJson();
 
     final _response = await _dio.request<dynamic>(
-      "$mapping/auth/$id",
+      "$mapping/admin/${resource.id}",
       data: _bodyData,
       options: _options,
       cancelToken: cancelToken,
@@ -251,8 +251,8 @@ class UserApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return Response<void>(
-      data: null,
+    return Response<MessageResponse>(
+      data: MessageResponse.fromJson(_response.data),
       headers: _response.headers,
       isRedirect: _response.isRedirect,
       requestOptions: _response.requestOptions,

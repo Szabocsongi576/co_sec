@@ -214,8 +214,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     await unFocus();
     _store.register(
       onRegisterSuccess: (response) => _showSnackBar(response.message),
-      onLoginSuccess: (response) {
-        Navigator.of(context).pushNamed(Routes.home, arguments: response);
+      onLoginSuccess: () {
+        Navigator.of(context).pushNamed(Routes.home);
       },
       onError: _showSnackBar,
     );

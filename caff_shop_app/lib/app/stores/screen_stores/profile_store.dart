@@ -19,7 +19,7 @@ abstract class _ProfileStore with Store {
     loadingStore.stackedLoading = true;
 
     await Future.delayed(Duration(milliseconds: 500));
-    ApiUtil().bearerToken = null;
+    ApiUtil().reset();
     onSuccess();
 
     loadingStore.stackedLoading = false;

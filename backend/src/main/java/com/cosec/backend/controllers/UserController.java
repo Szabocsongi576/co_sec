@@ -63,7 +63,7 @@ public class UserController {
     CaffRepository caffRepository;
 
     UserController() throws IOException {
-        fh = new FileHandler("E:/work/co_sec/UserController.log");
+        fh = new FileHandler("C:/work/UserController.log");
         logger.addHandler(fh);
         SimpleFormatter formatter = new SimpleFormatter();
         fh.setFormatter(formatter);
@@ -314,12 +314,10 @@ public class UserController {
                     int exitCode = p.waitFor();
                     if(exitCode == 0) {
                         while ((value = is.read()) != -1) {
-                            System.out.print((char) value);
                             retVal.append((char) value);
                         }
                     } else if(exitCode == 1) {
                         while ((value = isErr.read()) != -1) {
-                            System.out.print((char) value);
                             retVal.append((char) value);
                         }
                     }

@@ -1,8 +1,12 @@
-import 'package:caff_shop_app/app/api/api_util.dart';
+import 'dart:typed_data';
+
+import 'package:caff_shop_app/app/api/api.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gif_view/gif_view.dart';
 
 class CaffListItem extends StatelessWidget {
   final ConvertedCaff caff;
@@ -31,10 +35,47 @@ class CaffListItem extends StatelessWidget {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Expanded(
+                        /*Expanded(
                           child: Image.network(
                             "${ApiUtil().baseUrl}${caff.imageUrl}",
                             fit: BoxFit.cover,
+                          ),
+                        ),*/
+                        Expanded(
+                          child: FutureBuilder(
+                            future: Api().getCaffApi().getCaffImage(caff.id),
+                            builder: (context, snapshot) {
+                              switch (snapshot.connectionState) {
+                                case ConnectionState.waiting:
+                                  return Center(
+                                    child: Container(
+                                      width: 50.r,
+                                      height: 50.r,
+                                      child: CircularProgressIndicator(
+                                        color: ColorConstants.primary,
+                                      ),
+                                    ),
+                                  );
+                                default:
+                                  if (snapshot.hasError) {
+                                    return Center(
+                                      child: Container(
+                                        width: 50.r,
+                                        height: 50.r,
+                                        child: Icon(
+                                          Icons.error,
+                                          color: ColorConstants.primary,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    return GifView.memory(
+                                      (snapshot.data as Response<Uint8List>).data!,
+                                      fit: BoxFit.cover,
+                                    );
+                                  }
+                              }
+                            },
                           ),
                         ),
                         SizedBox(height: 5.r),

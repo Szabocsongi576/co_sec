@@ -27,8 +27,8 @@ abstract class _RegisterStore with Store {
 
   void _setupDisposers() {
     _disposers = [
-      reaction((_) => email, (_) {
-        emailError = null;
+      reaction((_) => username, (_) {
+        usernameError = null;
       }),
       reaction((_) => email, (_) {
         emailError = null;
@@ -36,8 +36,8 @@ abstract class _RegisterStore with Store {
       reaction((_) => password, (_) {
         passwordError = null;
       }),
-      reaction((_) => password, (_) {
-        passwordError = null;
+      reaction((_) => passwordConfirmation, (_) {
+        passwordConfirmationError = null;
       }),
     ];
   }
@@ -79,7 +79,7 @@ abstract class _RegisterStore with Store {
   @action
   Future<void> register({
     required void Function(MessageResponse) onRegisterSuccess,
-    required void Function(LoginResponse) onLoginSuccess,
+    required void Function() onLoginSuccess,
     required void Function(String) onError,
   }) async {
     if (!validate()) {
@@ -113,12 +113,17 @@ abstract class _RegisterStore with Store {
           .authenticateUser(loginRequest);
 
       if (loginResponse.isSuccess()) {
-        onLoginSuccess(loginResponse.data!);
+        onLoginSuccess();
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => register(
+          onRegisterSuccess: onRegisterSuccess,
+          onLoginSuccess: onLoginSuccess,
+          onError: onError,
+        ),
       );
     }
 

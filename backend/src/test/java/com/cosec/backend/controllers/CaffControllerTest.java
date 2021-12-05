@@ -263,13 +263,13 @@ class CaffControllerTest {
      */
     @Test
     void getAllComment_Success() throws Exception {
-        Comment comm1 = new Comment("1", "2", "1", "Comment");
-        Comment comm2 = new Comment("2", "3", "1", "Other Comment");
+        Comment comm1 = new Comment("1", "2", "UserOne", "1", "Comment");
+        Comment comm2 = new Comment("2", "3", "UserOther", "1", "Other Comment");
         when(caffRepository.existsById("1")).thenReturn(true);
         when(commentRepository.findAllByCaffId("1")).thenReturn(List.of(comm1, comm2));
         this.mvc.perform(get("/caffs/unauth/1/comments")).andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("[{\"id\":\"1\",\"userId\":\"2\",\"caffId\":\"1\",\"text\":\"Comment\"},{\"id\":\"2\",\"userId\":\"3\",\"caffId\":\"1\",\"text\":\"Other Comment\"}]"));
+                .andExpect(content().string("[{\"id\":\"1\",\"userId\":\"2\",\"username\":\"UserOne\",\"caffId\":\"1\",\"text\":\"Comment\"},{\"id\":\"2\",\"userId\":\"3\",\"username\":\"UserOther\",\"caffId\":\"1\",\"text\":\"Other Comment\"}]"));
     }
 
     /**
@@ -307,7 +307,7 @@ class CaffControllerTest {
      */
     @Test
     void createComment_Success() throws Exception {
-        Comment comm1 = new Comment( "2", "1", "Comment");
+        Comment comm1 = new Comment( "2", "UserOne", "1", "Comment");
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
         ObjectMapper objectMapper = new ObjectMapper();
         when(caffRepository.existsById("1")).thenReturn(true);
@@ -316,7 +316,7 @@ class CaffControllerTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(comm1))).andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(content().string("{\"id\":null,\"userId\":\"2\",\"caffId\":\"1\",\"text\":\"Comment\"}"));
+                .andExpect(content().string("{\"id\":null,\"userId\":\"2\",\"username\":\"UserOne\",\"caffId\":\"1\",\"text\":\"Comment\"}"));
     }
 
     /**
@@ -334,7 +334,7 @@ class CaffControllerTest {
      */
     @Test
     void createComment_CaffnotFound() throws Exception {
-        Comment comm1 = new Comment( "2", "1", "Comment");
+        Comment comm1 = new Comment( "2", "username", "1", "Comment");
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
         ObjectMapper objectMapper = new ObjectMapper();
         when(caffRepository.existsById("1")).thenReturn(false);
@@ -527,7 +527,7 @@ class CaffControllerTest {
         this.mvc.perform(get("/caffs/unauth/image/1")).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.parseMediaType(MediaType.IMAGE_GIF_VALUE)))
-                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + caffOne.getName() + ".gif\""));
+                .andExpect(header().string(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\"" + caffOne.getId() + "\""));
     }
 
     /**

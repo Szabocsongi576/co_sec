@@ -1,6 +1,6 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'login_store.dart';
+part of 'edit_dialog_store.dart';
 
 // **************************************************************************
 // StoreGenerator
@@ -8,8 +8,8 @@ part of 'login_store.dart';
 
 // ignore_for_file: non_constant_identifier_names, unnecessary_brace_in_string_interps, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
-mixin _$LoginStore on _LoginStore, Store {
-  final _$usernameAtom = Atom(name: '_LoginStore.username');
+mixin _$EditDialogStore on _EditDialogStore, Store {
+  final _$usernameAtom = Atom(name: '_EditDialogStore.username');
 
   @override
   String get username {
@@ -24,7 +24,22 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
-  final _$passwordAtom = Atom(name: '_LoginStore.password');
+  final _$emailAtom = Atom(name: '_EditDialogStore.email');
+
+  @override
+  String get email {
+    _$emailAtom.reportRead();
+    return super.email;
+  }
+
+  @override
+  set email(String value) {
+    _$emailAtom.reportWrite(value, super.email, () {
+      super.email = value;
+    });
+  }
+
+  final _$passwordAtom = Atom(name: '_EditDialogStore.password');
 
   @override
   String get password {
@@ -39,7 +54,7 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
-  final _$usernameErrorAtom = Atom(name: '_LoginStore.usernameError');
+  final _$usernameErrorAtom = Atom(name: '_EditDialogStore.usernameError');
 
   @override
   String? get usernameError {
@@ -54,7 +69,22 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
-  final _$passwordErrorAtom = Atom(name: '_LoginStore.passwordError');
+  final _$emailErrorAtom = Atom(name: '_EditDialogStore.emailError');
+
+  @override
+  String? get emailError {
+    _$emailErrorAtom.reportRead();
+    return super.emailError;
+  }
+
+  @override
+  set emailError(String? value) {
+    _$emailErrorAtom.reportWrite(value, super.emailError, () {
+      super.emailError = value;
+    });
+  }
+
+  final _$passwordErrorAtom = Atom(name: '_EditDialogStore.passwordError');
 
   @override
   String? get passwordError {
@@ -69,46 +99,15 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
-  final _$obscurePasswordAtom = Atom(name: '_LoginStore.obscurePassword');
-
-  @override
-  bool get obscurePassword {
-    _$obscurePasswordAtom.reportRead();
-    return super.obscurePassword;
-  }
-
-  @override
-  set obscurePassword(bool value) {
-    _$obscurePasswordAtom.reportWrite(value, super.obscurePassword, () {
-      super.obscurePassword = value;
-    });
-  }
-
-  final _$initAsyncAction = AsyncAction('_LoginStore.init');
-
-  @override
-  Future<void> init() {
-    return _$initAsyncAction.run(() => super.init());
-  }
-
-  final _$loginAsyncAction = AsyncAction('_LoginStore.login');
-
-  @override
-  Future<void> login(
-      {required void Function() onSuccess,
-      required void Function(String) onError}) {
-    return _$loginAsyncAction
-        .run(() => super.login(onSuccess: onSuccess, onError: onError));
-  }
-
   @override
   String toString() {
     return '''
 username: ${username},
+email: ${email},
 password: ${password},
 usernameError: ${usernameError},
-passwordError: ${passwordError},
-obscurePassword: ${obscurePassword}
+emailError: ${emailError},
+passwordError: ${passwordError}
     ''';
   }
 }

@@ -31,7 +31,7 @@ class User {
       "username": username,
       "email": email,
       "password": password,
-      "roles": roles.map((e) => e.toJson()).toSet(),
+      "roles": roles.map((e) => e.toJson()).toList(),
     };
   }
 }

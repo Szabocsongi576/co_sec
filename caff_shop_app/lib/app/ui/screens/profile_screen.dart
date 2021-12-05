@@ -1,11 +1,10 @@
-import 'package:caff_shop_app/app/models/login_response.dart';
+import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/routes/routes.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/profile_store.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   @override
@@ -49,7 +48,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    Provider.of<LoginResponse>(context).username,
+                    ApiUtil().loginResponse!.username,
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ),
@@ -72,7 +71,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Expanded(
                   child: Text(
-                    Provider.of<LoginResponse>(context).email,
+                    ApiUtil().loginResponse!.email,
                     style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ),

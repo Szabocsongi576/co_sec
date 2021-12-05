@@ -1,5 +1,6 @@
 import 'dart:async';
-import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:caff_shop_app/app/models/caff.dart';
 import 'package:caff_shop_app/app/models/comment.dart';
 import 'package:caff_shop_app/app/models/comment_request.dart';
@@ -8,22 +9,20 @@ import 'package:caff_shop_app/app/models/response.dart';
 import 'package:dio/dio.dart';
 
 class CaffApi {
-
   final Dio _dio;
 
   const CaffApi(this._dio);
 
   final String mapping = "/caffs";
 
-  Future<Response<List<ConvertedCaff>>> getAll(
-      {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+  Future<Response<List<ConvertedCaff>>> getAll({
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -69,14 +68,14 @@ class CaffApi {
   }
 
   Future<Response<Caff>> getCaffById(
-      String id, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String id, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -115,15 +114,15 @@ class CaffApi {
     );
   }
 
-  Future<Response<File>> downloadCaffById(
-      String id, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+  Future<Response<Uint8List>> downloadCaffById(
+    String id, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -150,8 +149,8 @@ class CaffApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return Response<File>(
-      data: File.fromRawPath(_response.data),
+    return Response<Uint8List>(
+      data: Uint8List.fromList(_response.data.toString().codeUnits),
       headers: _response.headers,
       isRedirect: _response.isRedirect,
       requestOptions: _response.requestOptions,
@@ -163,14 +162,14 @@ class CaffApi {
   }
 
   Future<Response<List<ConvertedCaff>>> searchCaffByName(
-      String name, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String name, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -219,14 +218,14 @@ class CaffApi {
   }
 
   Future<Response<List<Comment>>> getAllComment(
-      String id, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String id, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -272,14 +271,14 @@ class CaffApi {
   }
 
   Future<Response<Comment>> createComment(
-      CommentRequest resource, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    CommentRequest resource, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'POST',
       headers: <String, dynamic>{
@@ -319,14 +318,14 @@ class CaffApi {
   }
 
   Future<Response<MessageResponse>> deleteCaffById(
-      String id, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String id, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'DELETE',
       headers: <String, dynamic>{
@@ -366,14 +365,14 @@ class CaffApi {
   }
 
   Future<Response<MessageResponse>> deleteCommentById(
-      String commentId, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+    String commentId, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'DELETE',
       headers: <String, dynamic>{
@@ -412,15 +411,15 @@ class CaffApi {
     );
   }
 
-  Future<Response<Caff>> getCaffImage(
-      String id, {
-        CancelToken? cancelToken,
-        Map<String, dynamic>? headers,
-        Map<String, dynamic>? extra,
-        ValidateStatus? validateStatus,
-        ProgressCallback? onSendProgress,
-        ProgressCallback? onReceiveProgress,
-      }) async {
+  Future<Response<Uint8List>> getCaffImage(
+    String id, {
+    CancelToken? cancelToken,
+    Map<String, dynamic>? headers,
+    Map<String, dynamic>? extra,
+    ValidateStatus? validateStatus,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
+  }) async {
     final _options = Options(
       method: 'GET',
       headers: <String, dynamic>{
@@ -447,8 +446,8 @@ class CaffApi {
       onReceiveProgress: onReceiveProgress,
     );
 
-    return Response<Caff>(
-      data: Caff.fromJson(_response.data),
+    return Response<Uint8List>(
+      data: Uint8List.fromList(utf8.encode(_response.data)),
       headers: _response.headers,
       isRedirect: _response.isRedirect,
       requestOptions: _response.requestOptions,

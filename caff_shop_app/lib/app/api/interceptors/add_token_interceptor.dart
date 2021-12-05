@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 class AddTokenInterceptor extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    options.headers['Authorization'] = 'Bearer ${ApiUtil().bearerToken}';
+    options.headers['Authorization'] = 'Bearer ${ApiUtil().loginResponse!.accessToken}';
 
     return super.onRequest(options, handler);
   }

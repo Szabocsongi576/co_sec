@@ -1,12 +1,18 @@
 import 'dart:developer';
 
+import 'package:caff_shop_app/app/api/api.dart';
+import 'package:caff_shop_app/app/api/api_util.dart';
+import 'package:caff_shop_app/app/api/interceptors/save_token_interceptor.dart';
+import 'package:caff_shop_app/app/models/login_request.dart';
+import 'package:caff_shop_app/app/models/login_response.dart';
 import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 
-void handleDioError({
+Future<void> handleDioError({
   required DioError error,
   required void Function(String) onError,
-}) {
+  required void Function() failedFunction,
+}) async {
   log("error:");
   log(error.toString());
   log("Message: ${error.message}");
@@ -28,7 +34,22 @@ void handleDioError({
           }
           break;
         case 401:
-          onError(tr("error.401_unauthorized"));
+          try {
+            LoginRequest request = LoginRequest(
+              username: ApiUtil().username!,
+              password: ApiUtil().password!,
+            );
+            Response<LoginResponse> response =
+                await Api(interceptors: [SaveBearerTokenInterceptor()])
+                .getUserApi()
+                .authenticateUser(request);
+
+            if (response.isSuccess()) {
+              failedFunction();
+            }
+          } on DioError catch (_) {
+            onError(tr("error.401_unauthorized"));
+          }
           break;
         case 404:
           onError(tr("error.404_not_found"));
