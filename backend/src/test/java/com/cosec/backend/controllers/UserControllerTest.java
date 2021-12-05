@@ -93,6 +93,19 @@ class UserControllerTest {
     @MockBean
     AuthEntryPointJwt authEntryPointJwt;
 
+    /**
+     * Description:
+     *      Checking if getting all the users from the db returns correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return the list of users's.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      GET(/users/admin/all)
+     * Input:
+     *      -
+     * Expected output:
+     *      List of Users.
+     */
     @Test
     void getAll_Success() throws Exception {
         User userOne = new User("userOne", "e@mail.com", "verySecure");
@@ -109,6 +122,19 @@ class UserControllerTest {
                 .andExpect(content().string("[{\"id\":\"1\",\"username\":\"userOne\",\"email\":\"e@mail.com\",\"password\":\"verySecure\",\"roles\":[{\"id\":null,\"name\":\"ROLE_USER\"}]},{\"id\":\"2\",\"username\":\"userTwo\",\"email\":\"admin@mail.com\",\"password\":\"canttouchthis\",\"roles\":[{\"id\":null,\"name\":\"ROLE_ADMIN\"}]}]"));
     }
 
+    /**
+     * Description:
+     *      Checking if getting all the users from the empty db returns correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return the list of users's as an ampty list.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      GET(/users/admin/all)
+     * Input:
+     *      -
+     * Expected output:
+     *      Bad request, with message: User database is empty!
+     */
     @Test
     void getAll_EmptyDB() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -119,6 +145,18 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: User database is empty!\"}"));
     }
 
+    /**
+     * Description:
+     *      Checking if only administrators can acces the data of users.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      GET(/users/admin/all)
+     * Input:
+     *      -
+     * Expected output:
+     *      Forbidden Response Value.
+     */
     @Test
     void getAll_Unauthorized() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -126,7 +164,20 @@ class UserControllerTest {
                         .with(user(user))).andDo(print())
                 .andExpect(status().isForbidden());
    }
-
+    /**
+     * Description:
+     *      Checking if getting a user by its id from the Database returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      Upon finding the user it should return the user wrapped as optional.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      GET(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      User object
+     */
     @Test
     void getUserById_Success() throws Exception {
         User userOne = new User("userOne", "e@mail.com", "verySecure");
@@ -142,6 +193,20 @@ class UserControllerTest {
 
     }
 
+    /**
+     * Description:
+     *      Checking if getting a user by its id from the Database returns the correct response, if the user doesnt exist.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the user.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      GET(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Bad request, with message: User does not exist!
+     *      userRepository.findById never called with argument "1"
+     */
     @Test
     void getUserById_UserNotFound() throws Exception {
         User userOne = new User("userOne", "e@mail.com", "verySecure");
@@ -156,6 +221,20 @@ class UserControllerTest {
         verify(userRepository, never()).findById("1");
     }
 
+    /**
+     * Description:
+     *      Check if only administrators can access individual users data.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      GET(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Forbidden Response Value.
+     *      userRepository.existById never called with argument "1"
+     *      userRepository.findById never called with argument "1"
+     */
     @Test
     void getUserById_Unauthorized() throws Exception {
         User userOne = new User("userOne", "e@mail.com", "verySecure");
@@ -169,6 +248,20 @@ class UserControllerTest {
         verify(userRepository, never()).findById("1");
     }
 
+    /**
+     * Description:
+     *      Check if getting Caffs of a user returns the users uploaded caffs.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      CaffRepository is mocked, it should return the List of caffs by the given userId.
+     *      User must be logged in.
+     * Request:
+     *      GET(/users/auth/1/caffs)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      List of Caffs, which have been wrapped with CaffResponse, that belong to the specified user.
+     */
     @Test
     void getCaffsByUserId_Success() throws Exception {
         Caff caffOne = new Caff("1","b",new Binary(new byte[0]));
@@ -184,6 +277,19 @@ class UserControllerTest {
                 .andExpect(content().string("[{\"id\":\"1\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"/caffs/unauth/image/1\"},{\"id\":\"2\",\"userId\":\"1\",\"name\":\"b\",\"imageUrl\":\"/caffs/unauth/image/2\"}]"));
     }
 
+    /**
+     * Description:
+     *      Check if getting Caffs of a user returns the correct error, if the user doesnt exist.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the user.
+     *      User must be logged in.
+     * Request:
+     *      GET(/users/auth/1/caffs)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Bad request, with message: User does not exist!
+     */
     @Test
     void getCaffsByUserId_UserNotFound() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -194,6 +300,20 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: User does not exist!\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if getting Caffs of a user can only be done by logged in users.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      GET(/users/auth/1/caffs)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Forbidden Response Value.
+     *      userRepository.existById never called with argument "1"
+     *      caffRepository.getAllByUserId never called with argument "1"
+     */
     @Test
     void getCaffsByUserId_Unauthorized() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl(null, null, null, null, null);
@@ -204,6 +324,21 @@ class UserControllerTest {
         verify(caffRepository, never()).getAllByUserId("1");
     }
 
+    /**
+     * Description:
+     *      Check if deleting a user by its id has the correct effect on the databse and returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      DELETE(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Ok, with message: User deleted successfully!
+     *      userRepository.deleteById called only once with argument "1"
+     *      caffRepository.deleteAllByUserId called only once with argument "1"
+     */
     @Test
     void deleteUserById_Success() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -216,6 +351,21 @@ class UserControllerTest {
         verify(caffRepository, times(1)).deleteAllByUserId("1");
     }
 
+    /**
+     * Description:
+     *      Check if deleting a user by its id returns the correct response, if the user doesnt exist.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the user.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      DELETE(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Bad Request, with message: User does not exist!
+     *      userRepository.deleteById never called with argument "1"
+     *      caffRepository.deleteAllByUserId never called with argument "1"
+     */
     @Test
     void deleteUserById_UserNotFound() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -228,10 +378,23 @@ class UserControllerTest {
         verify(caffRepository, never()).deleteAllByUserId("1");
     }
 
+    /**
+     * Description:
+     *      Check if only Administrators can delete users.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      DELETE(/users/admin/1)
+     * Input:
+     *      Path parameter ID (1)
+     * Expected output:
+     *      Forbidden Response Value.
+     *      userRepository.deleteById never called with argument "1"
+     *      caffRepository.deleteAllByUserId never called with argument "1"
+     */
     @Test
     void deleteUserById_Unauthorized() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
-        when(userRepository.existsById("1")).thenReturn(false);
         this.mvc.perform(delete("/users/admin/1")
                         .with(user(user))).andDo(print())
                 .andExpect(status().isForbidden());
@@ -239,14 +402,31 @@ class UserControllerTest {
         verify(caffRepository, never()).deleteAllByUserId("1");
     }
 
+    /**
+     * Description:
+     *      Check if updating a users values the correct effect on the databse and returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      It Should return Optional of the user.
+     *      It should return false for checking if the parameter Username exists.
+     *      It should return false for checking if the parameter Email exists.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      PUT(/users/admin/1)
+     * Input:
+     *      Request Body User (param)
+     * Expected output:
+     *      Ok, with message: User updated successfully!
+     *      userRepository.save called only once with argument "1"
+     */
     @Test
     void updateUserById_Success() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
         User param = new User("ASD", "e@mail.com", "aaaaaaaaaaa");
         param.setId("1");
         ObjectMapper objectMapper = new ObjectMapper();
-        when(userRepository.findById("1")).thenReturn(Optional.of(param));
         when(userRepository.existsById("1")).thenReturn(true);
+        when(userRepository.findById("1")).thenReturn(Optional.of(param));
         when(userRepository.existsByEmail("1")).thenReturn(false);
         when(userRepository.existsByUsername("1")).thenReturn(false);
         this.mvc.perform(put("/users/admin/1")
@@ -258,6 +438,23 @@ class UserControllerTest {
         verify(userRepository, times(1)).save(param);
     }
 
+    /**
+     * Description:
+     *      Check if updating a users values if the parameter email being taken has the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      It Should return Optional of the user.
+     *      It should return false for checking if the parameter Username exists.
+     *      It should return true for checking if the parameter Email exists.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      PUT(/users/admin/1)
+     * Input:
+     *      Request Body User (param)
+     * Expected output:
+     *      Bad Request, with message: Email is already in use!
+     *      userRepository.save never called with argument "1"
+     */
     @Test
     void updateUserById_Email_Taken() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -267,7 +464,7 @@ class UserControllerTest {
         when(userRepository.findById(param.getId())).thenReturn(Optional.of(param));
         when(userRepository.existsById(param.getId())).thenReturn(true);
         when(userRepository.existsByEmail(param.getEmail())).thenReturn(true);
-        when(userRepository.existsByUsername(param.getUsername())).thenReturn(true);
+        when(userRepository.existsByUsername(param.getUsername())).thenReturn(false);
         this.mvc.perform(put("/users/admin/1")
                         .with(user(user))
                         .contentType(MediaType.APPLICATION_JSON)
@@ -277,6 +474,23 @@ class UserControllerTest {
         verify(userRepository, never()).save(param);
     }
 
+    /**
+     * Description:
+     *      Check if updating a users values if the parameter UserName being taken has the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      It Should return Optional of the user.
+     *      It should return true for checking if the parameter Username exists.
+     *      It should return false for checking if the parameter Email exists.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      PUT(/users/admin/1)
+     * Input:
+     *      Request Body User (param)
+     * Expected output:
+     *      Bad Request, with message: Username is already taken!
+     *      userRepository.save never called with argument "1"
+     */
     @Test
     void updateUserById_UserName_Taken() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -296,6 +510,23 @@ class UserControllerTest {
         verify(userRepository, never()).save(param);
     }
 
+    /**
+     * Description:
+     *      Check if updating a users values if the parameter password being too short has the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the user.
+     *      It Should return Optional of the user.
+     *      It should return false for checking if the parameter Username exists.
+     *      It should return false for checking if the parameter Email exists.
+     *      User must be logged in. User must have ADMIN role.
+     * Request:
+     *      PUT(/users/admin/1)
+     * Input:
+     *      Request Body User (param)
+     * Expected output:
+     *      Bad Request, with message: Password should be at least 8 characters long!
+     *      userRepository.save never called with argument "1"
+     */
     @Test
     void updateUserById_Password_Too_Short() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_ADMIN"));
@@ -315,6 +546,19 @@ class UserControllerTest {
         verify(userRepository, never()).save(param);
     }
 
+    /**
+     * Description:
+     *      Check if only Administrators can edit other users data.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      PUT(/users/admin/1)
+     * Input:
+     *      Request Body User (param)
+     * Expected output:
+     *      Forbidden Response Value.
+     *      userRepository.save never called with argument "1"
+     */
     @Test
     void updateUserById_Unauthorized() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -329,6 +573,18 @@ class UserControllerTest {
         verify(userRepository, never()).save(param);
     }
 
+    /**
+     * Description:
+     *      Check if uploading a caff has the correct effect on the databse and returns the correct response.
+     * Mock Restrictions:
+     *      User must be logged in.
+     * Request:
+     *      POST/MultiPart(/users/auth/1/caffs)
+     * Input:
+     *      Request Body Caff (result)
+     * Expected output:
+     *      Ok, with message: Added Caff to Database, Parse successful!
+     */
     @Test
     void createCaff_Success() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -352,6 +608,18 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Added Caff to Database, Parse successful!\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if uploading an invalid caff returns the correct response.
+     * Mock Restrictions:
+     *      User must be logged in.
+     * Request:
+     *      POST/MultiPart(/users/auth/1/caffs)
+     * Input:
+     *      Request Body Caff (result)
+     * Expected output:
+     *      Bad Request. (Response Message varies on parser error.)
+     */
     @Test
     void createCaff_Parse_Error() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl("1", "hasza98", "hasza98@gmail.com", "password", AuthorityUtils.createAuthorityList("ROLE_USER"));
@@ -374,6 +642,18 @@ class UserControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    /**
+     * Description:
+     *      Check if only logged in users can upload caffs.
+     * Mock Restrictions:
+     *      -
+     * Request:
+     *      POST/MultiPart(/users/auth/1/caffs)
+     * Input:
+     *      Request Body Caff (result)
+     * Expected output:
+     *      Forbidden Response Value.
+     */
     @Test
     void createCaff_Unauthorized() throws Exception {
         UserDetailsImpl user = new UserDetailsImpl(null, null, null, null, null);
@@ -396,6 +676,11 @@ class UserControllerTest {
                 .andExpect(status().isForbidden());
     }
 
+    /**
+     * Test has too many injected resources in authentication components.
+     * Failed to make it work.
+     * Checked in postman tests.
+     */
     @Test
     void authenticateUser_Success() throws Exception {
         /*
@@ -416,6 +701,18 @@ class UserControllerTest {
          */
     }
 
+    /**
+     * Description:
+     *      Check if login of a user with a username that doesnt exist has the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the given username.
+     * Request:
+     *      POST(/users/unauth/login)
+     * Input:
+     *      Request Body Login (login)
+     * Expected output:
+     *      Bad Request, with message: Username is not found
+     */
     @Test
     void authenticateUser_UserNameNotFound() throws Exception {
         Login login = new Login();
@@ -431,6 +728,20 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: Username is not found\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if login of a user with an incorrect password has the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the given username.
+     *      It should return the user wrapped as Optional.
+     *      Cheking match with encoder should return false.
+     * Request:
+     *      POST(/users/unauth/login)
+     * Input:
+     *      Request Body Login (login)
+     * Expected output:
+     *      Bad Request, with message: Password is incorrect
+     */
     @Test
     void authenticateUser_PasswordIncorrect() throws Exception {
         Login login = new Login();
@@ -449,6 +760,20 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: Password is incorrect\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if registration of a user has the correct effect on the database and returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the given username.
+     *      It should return false for finding the given email.
+     *      RoleRepository is mocked, it should return ROLE_USER.
+     * Request:
+     *      POST(/users/unauth/registration)
+     * Input:
+     *      Request Body Registration (reg)
+     * Expected output:
+     *      Ok, with message: User registered successfully!!
+     */
     @Test
     void registerUser_Success() throws Exception {
         Registration reg = new Registration("UserName1","e@mail.hu", null, "LongPassword");
@@ -464,6 +789,18 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"User registered successfully!\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if registration of a user with a taken userName returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return true for finding the given username.
+     * Request:
+     *      POST(/users/unauth/registration)
+     * Input:
+     *      Request Body Registration (reg)
+     * Expected output:
+     *      Bad Request, with message: Username is already taken!
+     */
     @Test
     void registerUser_UserName_Taken() throws Exception {
         Registration reg = new Registration("UserName1","e@mail.hu", null, "LongPassword");
@@ -477,6 +814,19 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: Username is already taken!\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if registration of a user with a taken email returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the given username.
+     *      It should return true for finding the given email.
+     * Request:
+     *      POST(/users/unauth/registration)
+     * Input:
+     *      Request Body Registration (reg)
+     * Expected output:
+     *      Bad Request, with message: Email is already in use!
+     */
     @Test
     void registerUser_Email_Taken() throws Exception {
         Registration reg = new Registration("UserName1","e@mail.hu", null, "LongPassword");
@@ -491,6 +841,19 @@ class UserControllerTest {
                 .andExpect(content().string("{\"message\":\"Error: Email is already in use!\"}"));
     }
 
+    /**
+     * Description:
+     *      Check if registration of a user with a too short password returns the correct response.
+     * Mock Restrictions:
+     *      UserRepository is mocked, it should return false for finding the given username.
+     *      It should return false for finding the given email.
+     * Request:
+     *      POST(/users/unauth/registration)
+     * Input:
+     *      Request Body Registration (reg)
+     * Expected output:
+     *      Bad Request, with message: Password should be at least 8 characters long!
+     */
     @Test
     void registerUser_Password_TooShort() throws Exception {
         Registration reg = new Registration("UserName1","e@mail.hu", null, "shortpp");
