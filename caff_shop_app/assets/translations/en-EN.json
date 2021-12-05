@@ -1,0 +1,44 @@
+{
+  "error": {
+    "field_is_empty": "Field is required",
+    "invalid_content": "Field contains invalid data",
+    "passwords_different": "Passwords not match",
+    "timeout": "Connection timeout.",
+    "basic_error": "Something went wrong.",
+    "401_unauthorized": "Incorrect username or password.",
+    "404_not_found": "{thing} not found.",
+    "extension": "The file's extension not valid."
+  },
+  "appbar": {
+    "login": "Login",
+    "register": "Register",
+    "caff_browser": "CAFF browser",
+    "profile": "Profile",
+    "users": "Users",
+    "user_profile": "User profile"
+  },
+  "hint": {
+    "email": "Email",
+    "password": "Password",
+    "password_confirmation": "Password confirm",
+    "username": "Username",
+    "search": "Search...",
+    "comment": "Comment",
+    "name": "File name"
+  },
+  "caption": {
+    "dont_have_acc": "Don't have an account yet?",
+    "registration": "Sign up"
+  },
+  "button": {
+    "login": "Login",
+    "register": "Register",
+    "upload": "Upload",
+    "edit": "Edit",
+    "continue": "Skip login"
+  },
+  "add_file": "Select file!",
+  "refresh": "Refresh",
+  "download_success": "Download success",
+  "edit_data": "Edit data"
+}

@@ -1,0 +1,44 @@
+{
+  "error": {
+    "field_is_empty": "A mező kitöltése kötelező",
+    "invalid_content": "A mező kitöltése nem érvényes",
+    "passwords_different": "A jelszavak nem egyeznek",
+    "timeout": "A kapcsolat időtúllépés miatt megszakadt.",
+    "basic_error": "Valami hiba történt.",
+    "401_unauthorized": "Hibás felhasználónév vagy jelszó.",
+    "404_not_found": "Nem található megfelelő {thing}.",
+    "extension": "A file kiterjesztése nem megfelelő."
+  },
+  "appbar": {
+    "login": "Bejelentkezés",
+    "register": "Regisztráció",
+    "caff_browser": "CAFF böngésző",
+    "profile": "Profil",
+    "users": "Felhasználók",
+    "user_profile": "Felhasználók"
+  },
+  "hint": {
+    "email": "Email",
+    "password": "Jelszó",
+    "password_confirmation": "Jelszó megerősítése",
+    "username": "Felhasználónév",
+    "search": "Keresés...",
+    "comment": "Megjegyzés",
+    "name": "File neve"
+  },
+  "caption": {
+    "dont_have_acc": "Nincs még fiókod?",
+    "registration": "Regisztrálj"
+  },
+  "button": {
+    "login": "Bejelentkezés",
+    "register": "Regisztráció",
+    "upload": "Feltöltés",
+    "edit": "Módosítás",
+    "continue": "Bejelentkezés kihagyása"
+  },
+  "add_file": "Válasszon ki egy fájlt!",
+  "refresh": "Újra",
+  "download_success": "Sikeres letöltés",
+  "edit_data": "Adatok módosítása"
+}
