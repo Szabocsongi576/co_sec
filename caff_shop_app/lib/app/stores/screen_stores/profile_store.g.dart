@@ -19,7 +19,6 @@ mixin _$ProfileStore on _ProfileStore, Store {
   @override
   String toString() {
     return '''
-
     ''';
   }
 }
