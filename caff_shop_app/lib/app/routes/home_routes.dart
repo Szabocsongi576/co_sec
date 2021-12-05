@@ -1,4 +1,5 @@
 import 'package:caff_shop_app/app/models/converted_caff.dart';
+import 'package:caff_shop_app/app/models/user.dart';
 import 'package:caff_shop_app/app/ui/screens/file_details_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/file_list_screen.dart';
 import 'package:caff_shop_app/app/ui/screens/profile_screen.dart';
@@ -50,7 +51,9 @@ class HomeRoutes {
       case userDetails:
         return PageRouteBuilder<dynamic>(
           settings: settings,
-          pageBuilder: (context, animation, secondaryAnimation) => UserDetailsScreen(),
+          pageBuilder: (context, animation, secondaryAnimation) => UserDetailsScreen(
+            user: settings.arguments as User,
+          ),
           transitionDuration: Duration(milliseconds: 300),
           transitionsBuilder: _slideTransitionsBuilder,
         );

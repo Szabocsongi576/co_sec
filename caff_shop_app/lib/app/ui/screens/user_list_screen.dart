@@ -90,8 +90,8 @@ class _UserListScreenState extends State<UserListScreen> {
                     primary: false,
                     shrinkWrap: true,
                     itemCount: _store.filteredUserList.length,
-                    itemBuilder: (context, index) => Divider(),
-                    separatorBuilder: (context, index) {
+                    separatorBuilder: (context, index) => Divider(),
+                    itemBuilder: (context, index) {
                       User user = _store.filteredUserList[index];
 
                       return ListTile(

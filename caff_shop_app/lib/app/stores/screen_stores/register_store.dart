@@ -27,8 +27,8 @@ abstract class _RegisterStore with Store {
 
   void _setupDisposers() {
     _disposers = [
-      reaction((_) => email, (_) {
-        emailError = null;
+      reaction((_) => username, (_) {
+        usernameError = null;
       }),
       reaction((_) => email, (_) {
         emailError = null;
@@ -36,8 +36,8 @@ abstract class _RegisterStore with Store {
       reaction((_) => password, (_) {
         passwordError = null;
       }),
-      reaction((_) => password, (_) {
-        passwordError = null;
+      reaction((_) => passwordConfirmation, (_) {
+        passwordConfirmationError = null;
       }),
     ];
   }
