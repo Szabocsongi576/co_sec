@@ -2,6 +2,7 @@ package com.cosec.backend.controllers;
 
 import com.cosec.backend.models.Caff;
 import com.cosec.backend.models.Comment;
+import com.cosec.backend.models.ParseResult;
 import com.cosec.backend.payload.response.CaffResponse;
 import com.cosec.backend.payload.response.MessageResponse;
 import com.cosec.backend.repository.CaffRepository;
@@ -200,12 +201,13 @@ public class CaffController {
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(MediaType.IMAGE_GIF_VALUE))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ caff.get().getId() +"\"")
-                    .body(parseCaff(caff.get()).getBytes(StandardCharsets.UTF_8));
+                    .body(parseCaff(caff.get()).getImageData());
         }
     }
 
-    private String parseCaff(Caff caff) {
-        String retVal ="";
+    private ParseResult parseCaff(Caff caff) {
+        StringBuilder retVal = new StringBuilder();
+        byte[] allBytes = null;
         try {
             FileOutputStream outputStream = new FileOutputStream( "sample.caff");
             outputStream.write(caff.getData().getData());
@@ -222,32 +224,32 @@ public class CaffController {
                     Process p = pb.start();
                     InputStream is = p.getInputStream();
                     int value = -1;
-                    while ((value = is.read()) != -1) {
-                        System.out.print((char) value);
-                    }
                     int exitCode = p.waitFor();
-                    System.out.println(parser.getAbsolutePath() + " exited with " + exitCode);
+                    if(exitCode == 0) {
+                        while ((value = is.read()) != -1) {
+                            retVal.append((char) value);
+                        }
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
             } else {
-                System.err.println(parser.getAbsolutePath() + " does not exist");
+                return new ParseResult("Parser does not exist.");
             }
             try (
                     InputStream inputStream = new FileInputStream("sample.gif");
             ) {
                 long fileSize = new File("sample.gif").length();
 
-                byte[] allBytes = new byte[(int) fileSize];
+                allBytes = new byte[(int) fileSize];
 
                 inputStream.read(allBytes);
-                retVal = Base64.getEncoder().encodeToString(allBytes);
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-        return retVal;
+        return new ParseResult(retVal.toString(), allBytes);
     }
 }
