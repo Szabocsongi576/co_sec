@@ -9,18 +9,21 @@ public class Comment {
     @Id
     private String id;
     private String userId;
+    private String username;
     private String caffId;
     private String text;
 
-    public Comment(String id, String userId, String caffId, String text) {
+    public Comment(String id, String userId, String username, String caffId, String text) {
         this.id = id;
         this.userId = userId;
+        this.username = username;
         this.caffId = caffId;
         this.text = text;
     }
 
-    public Comment(String userId, String caffId, String text) {
+    public Comment(String userId, String username, String caffId, String text) {
         this.userId = userId;
+        this.username = username;
         this.caffId = caffId;
         this.text = text;
     }
@@ -58,5 +61,13 @@ public class Comment {
 
     public void setText(String text) {
         this.text = text;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 }
