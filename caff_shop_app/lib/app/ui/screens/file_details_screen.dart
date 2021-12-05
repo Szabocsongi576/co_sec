@@ -1,6 +1,3 @@
-import 'dart:typed_data';
-
-import 'package:caff_shop_app/app/api/api.dart';
 import 'package:caff_shop_app/app/api/api_util.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
@@ -8,13 +5,11 @@ import 'package:caff_shop_app/app/models/role_type.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_details_store.dart';
 import 'package:caff_shop_app/app/ui/widget/comment_list_item.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
-import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:gif_view/gif_view.dart';
 
 class FileDetailsScreen extends StatefulWidget {
   final ConvertedCaff caff;
@@ -115,42 +110,11 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
       width: 1.sw,
       child: Stack(
         children: [
-          FutureBuilder(
-            future: Api().getCaffApi().getCaffImage(widget.caff.id),
-            builder: (context, snapshot) {
-              switch (snapshot.connectionState) {
-                case ConnectionState.waiting:
-                  return Center(
-                    child: Container(
-                      width: 50.r,
-                      height: 50.r,
-                      child: CircularProgressIndicator(
-                        color: ColorConstants.primary,
-                      ),
-                    ),
-                  );
-                default:
-                  if (snapshot.hasError) {
-                    return Center(
-                      child: Container(
-                        width: 50.r,
-                        height: 50.r,
-                        child: Icon(
-                          Icons.error,
-                          color: ColorConstants.primary,
-                        ),
-                      ),
-                    );
-                  } else {
-                    return GifView.memory(
-                      (snapshot.data as Response<Uint8List>).data!,
-                      fit: BoxFit.cover,
-                      height: 0.4.sh,
-                      width: 1.sw,
-                    );
-                  }
-              }
-            },
+          Image.network(
+            ApiUtil().baseUrl! + widget.caff.imageUrl,
+            fit: BoxFit.cover,
+            height: 0.4.sh,
+            width: 1.sw,
           ),
           Align(
             alignment: Alignment.bottomCenter,
