@@ -1,11 +1,6 @@
 package com.cosec.backend.payload.response;
 
 import com.cosec.backend.models.Caff;
-import com.cosec.backend.payload.request.CaffRequest;
-import org.bson.BsonBinarySubType;
-import org.bson.types.Binary;
-
-import java.io.IOException;
 
 public class CaffResponse {
     private String id;
@@ -17,8 +12,7 @@ public class CaffResponse {
         this.id = caff.getId();
         this.name = caff.getName();
         this.userId = caff.getUserId();
-        //TODO Change this upon deploy
-        this.imageUrl = "http://localhost:8080/caffs/unauth/image/" + id;
+        this.imageUrl = "/caffs/unauth/image/" + id;
     }
 
     public String getId() {

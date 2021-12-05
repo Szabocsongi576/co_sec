@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -63,7 +64,6 @@ public class CaffController {
         }
         else {
             List<CaffResponse> responseList = new ArrayList<>();
-
             for (Caff caff : caffs) {
                 responseList.add(new CaffResponse(caff));
             }
@@ -199,8 +199,8 @@ public class CaffController {
             Optional<Caff> caff = this.caffRepository.findById(caffId);
             return ResponseEntity.ok()
                     .contentType(MediaType.parseMediaType(MediaType.IMAGE_GIF_VALUE))
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + caff.get().getName() + ".gif\"")
-                    .body(parseCaff(caff.get()));
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\""+ caff.get().getId() +"\"")
+                    .body(parseCaff(caff.get()).getBytes(StandardCharsets.UTF_8));
         }
     }
 

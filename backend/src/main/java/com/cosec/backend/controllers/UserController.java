@@ -1,15 +1,9 @@
 package com.cosec.backend.controllers;
 
-import java.io.*;
-import java.util.*;
-import java.util.logging.FileHandler;
-import java.util.logging.Logger;
-import java.util.logging.SimpleFormatter;
-import java.util.stream.Collectors;
-
-import javax.validation.Valid;
-
-import com.cosec.backend.models.*;
+import com.cosec.backend.models.Caff;
+import com.cosec.backend.models.Role;
+import com.cosec.backend.models.RoleType;
+import com.cosec.backend.models.User;
 import com.cosec.backend.payload.request.CaffRequest;
 import com.cosec.backend.payload.request.Login;
 import com.cosec.backend.payload.request.Registration;
@@ -31,6 +25,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.logging.FileHandler;
+import java.util.logging.Logger;
+import java.util.logging.SimpleFormatter;
+import java.util.stream.Collectors;
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/users")
@@ -38,7 +43,6 @@ public class UserController {
 
     Logger logger = Logger.getLogger("MyLog");
     FileHandler fh;
-
 
     @Autowired
     AuthenticationManager authenticationManager;
@@ -79,9 +83,11 @@ public class UserController {
                     .badRequest()
                     .body(new MessageResponse("Error: User database is empty!"));
         }
-        return ResponseEntity
-                .ok()
-                .body(users);
+        else {
+            return ResponseEntity
+                    .ok()
+                    .body(users);
+        }
     }
 
     @GetMapping("/admin/{id}")
@@ -92,11 +98,12 @@ public class UserController {
                     .badRequest()
                     .body(new MessageResponse("Error: User does not exist!"));
         }
-
-        Optional<User> user = this.userRepository.findById(id);
-        return ResponseEntity
-                .ok()
-                .body(user);
+        else {
+            Optional<User> user = this.userRepository.findById(id);
+            return ResponseEntity
+                    .ok()
+                    .body(user.get());
+        }
     }
 
     @GetMapping("/auth/{id}/caffs")
@@ -107,15 +114,16 @@ public class UserController {
                     .badRequest()
                     .body(new MessageResponse("Error: User does not exist!"));
         }
-
-        List<Caff> caffs = this.caffRepository.getAllByUserId(id);
-        List<CaffResponse> responseList = new ArrayList<>();
-        for (Caff caff : caffs) {
-            responseList.add(new CaffResponse(caff));
+        else {
+            List<Caff> caffs = this.caffRepository.getAllByUserId(id);
+            List<CaffResponse> responseList = new ArrayList<>();
+            for (Caff caff : caffs) {
+                responseList.add(new CaffResponse(caff));
+            }
+            return ResponseEntity
+                    .ok()
+                    .body(responseList);
         }
-        return ResponseEntity
-                .ok()
-                .body(responseList);
     }
 
     @DeleteMapping("/admin/{id}")
@@ -125,12 +133,14 @@ public class UserController {
                     .badRequest()
                     .body(new MessageResponse("Error: User does not exist!"));
         }
-        logger.info(String.format("ADMIN %s(%s) deleted User(%s).",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
-        this.userRepository.deleteById(id);
-        this.caffRepository.deleteAllByUserId(id);
-        return ResponseEntity
-                .ok()
-                .body(new MessageResponse("User deleted successfully!"));
+        else {
+            logger.info(String.format("ADMIN %s(%s) deleted User(%s).", getCurrentUser().getUsername(), getCurrentUser().getId(), id));
+            this.userRepository.deleteById(id);
+            this.caffRepository.deleteAllByUserId(id);
+            return ResponseEntity
+                    .ok()
+                    .body(new MessageResponse("User deleted successfully!"));
+        }
     }
 
     @PutMapping("/admin/{id}")
@@ -176,17 +186,6 @@ public class UserController {
 
     @PostMapping("/auth/{id}/caffs")
     public ResponseEntity<?> createCaff(@PathVariable("id") String id,  @ModelAttribute CaffRequest paramCaff){
-        logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
-        /*
-        / TODO Check if Frontend sends valid multipart form data, where the multipart file extension can be checked.
-        / Then this snippet can be used to check file extension.
-        if(!paramCaff.getData().getOriginalFilename().split("\\.")[1].equals("caff"))
-        {
-            return ResponseEntity
-                    .badRequest()
-                    .body(new MessageResponse("Invalid File Extension: " + paramCaff.getData().getOriginalFilename().split("\\.")[1]));
-        }
-         */
         Caff newCaff = new Caff(id,paramCaff);
         String message = CheckCaff(newCaff);
         if(!message.equals("Parse successful.\r\nGif's name: check.gif\r\n"))
@@ -196,6 +195,7 @@ public class UserController {
                     .body(new MessageResponse("Parser Error: " + message));
         }
         else {
+            logger.info(String.format("USER %s(%s) created Caff.",getCurrentUser().getUsername(),getCurrentUser().getId(),id));
             caffRepository.save(newCaff);
             return ResponseEntity
                     .ok()
@@ -211,29 +211,29 @@ public class UserController {
                     .badRequest()
                     .body(new MessageResponse("Error: Username is not found"));
         }
-
-        if(!(encoder.matches(loginRequest.getPassword() ,userRepository.findByUsername(loginRequest.getUsername()).get().getPassword()))){
+        else if(!(encoder.matches(loginRequest.getPassword() ,userRepository.findByUsername(loginRequest.getUsername()).get().getPassword()))){
             return ResponseEntity
                     .badRequest()
                     .body(new MessageResponse("Error: Password is incorrect"));
         }
+        else {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String jwt = jwtUtils.generateJwtToken(authentication);
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtToken(authentication);
+            UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
+            List<String> roles = userDetails.getAuthorities().stream()
+                    .map(item -> item.getAuthority())
+                    .collect(Collectors.toList());
 
-        UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
-        List<String> roles = userDetails.getAuthorities().stream()
-                .map(item -> item.getAuthority())
-                .collect(Collectors.toList());
-
-        return ResponseEntity.ok(new JwtResponse(jwt,
-                userDetails.getId(),
-                userDetails.getUsername(),
-                userDetails.getEmail(),
-                roles));
+            return ResponseEntity.ok(new JwtResponse(jwt,
+                    userDetails.getId(),
+                    userDetails.getUsername(),
+                    userDetails.getEmail(),
+                    roles));
+        }
     }
 
     @PostMapping("/unauth/registration")
@@ -292,7 +292,7 @@ public class UserController {
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    public String CheckCaff(Caff caff) {
+    private String CheckCaff(Caff caff) {
         StringBuilder retVal = new StringBuilder();
         try {
             FileOutputStream outputStream = new FileOutputStream( "check.caff");
