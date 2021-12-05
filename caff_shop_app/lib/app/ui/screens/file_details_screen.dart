@@ -1,4 +1,6 @@
-import 'package:caff_shop_app/app/api/api_util.dart';
+import 'dart:typed_data';
+
+import 'package:caff_shop_app/app/api/api.dart';
 import 'package:caff_shop_app/app/config/color_constants.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
 import 'package:caff_shop_app/app/models/login_response.dart';
@@ -7,11 +9,13 @@ import 'package:caff_shop_app/app/models/user.dart';
 import 'package:caff_shop_app/app/stores/screen_stores/file_details_store.dart';
 import 'package:caff_shop_app/app/ui/widget/comment_list_item.dart';
 import 'package:caff_shop_app/app/ui/widget/loading.dart';
+import 'package:dio/dio.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gif_view/gif_view.dart';
 import 'package:provider/provider.dart';
 
 class FileDetailsScreen extends StatefulWidget {
@@ -37,7 +41,8 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
     _store = FileDetailsStore(
       caff: widget.caff,
       isAdmin: Provider.of<LoginResponse>(context, listen: false)
-        .roles.contains(RoleType.ROLE_ADMIN),
+          .roles
+          .contains(RoleType.ROLE_ADMIN),
     );
     _store.init(onError: (message, func) => _showSnackBar(message, func));
 
@@ -51,84 +56,7 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
       isExpandable: false,
       body: Column(
         children: [
-          Container(
-            height: 0.4.sh,
-            width: 1.sw,
-            child: Stack(
-              children: [
-                Image.network(
-                  "${ApiUtil().baseUrl}${widget.caff.imageUrl}",
-                  fit: BoxFit.cover,
-                  height: 0.4.sh,
-                  width: 1.sw,
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.r,
-                      vertical: 10.r,
-                    ),
-                    color: ColorConstants.black.withOpacity(0.4),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            widget.caff.name,
-                            style:
-                                Theme.of(context).textTheme.headline3!.copyWith(
-                                      color: ColorConstants.white,
-                                    ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        )
-                      ],
-                    ),
-                  ),
-                ),
-                Align(
-                  alignment: Alignment.topLeft,
-                  child: Padding(
-                    padding: EdgeInsets.all(20.r),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: ColorConstants.black.withOpacity(0.4),
-                        shape: BoxShape.circle,
-                      ),
-                      child: IconButton(
-                        icon: Icon(
-                          Icons.arrow_back,
-                          color: ColorConstants.white,
-                        ),
-                        onPressed: _onBackArrowPressed,
-                      ),
-                    ),
-                  ),
-                ),
-                if(_store.isAdmin)
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: Padding(
-                      padding: EdgeInsets.all(20.r),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: ColorConstants.black.withOpacity(0.4),
-                          shape: BoxShape.circle,
-                        ),
-                        child: IconButton(
-                          icon: Icon(
-                            Icons.delete,
-                            color: ColorConstants.white,
-                          ),
-                          onPressed: () => _onCaffDeleteTap(),
-                        ),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
+          _buildImagePanel(context),
           Container(
             padding: EdgeInsets.all(20.r),
             child: Column(
@@ -188,6 +116,128 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
     );
   }
 
+  Container _buildImagePanel(BuildContext context) {
+    return Container(
+      height: 0.4.sh,
+      width: 1.sw,
+      child: Stack(
+        children: [
+          FutureBuilder(
+            future: Api().getCaffApi().getCaffImage(widget.caff.id),
+            builder: (context, snapshot) {
+              switch (snapshot.connectionState) {
+                case ConnectionState.waiting:
+                  return Center(
+                    child: Container(
+                      width: 50.r,
+                      height: 50.r,
+                      child: CircularProgressIndicator(
+                        color: ColorConstants.primary,
+                      ),
+                    ),
+                  );
+                default:
+                  if (snapshot.hasError) {
+                    return Center(
+                      child: Container(
+                        width: 50.r,
+                        height: 50.r,
+                        child: Icon(
+                          Icons.error,
+                          color: ColorConstants.primary,
+                        ),
+                      ),
+                    );
+                  } else {
+                    return GifView.memory(
+                      (snapshot.data as Response<Uint8List>).data!,
+                      fit: BoxFit.cover,
+                      height: 0.4.sh,
+                      width: 1.sw,
+                    );
+                  }
+              }
+            },
+          ),
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: 20.r,
+                vertical: 10.r,
+              ),
+              color: ColorConstants.black.withOpacity(0.4),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      widget.caff.name,
+                      style: Theme.of(context).textTheme.headline3!.copyWith(
+                            color: ColorConstants.white,
+                          ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  SizedBox(width: 20.r),
+                  IconButton(
+                    padding: EdgeInsets.zero,
+                    visualDensity:
+                        VisualDensity(horizontal: -4.0, vertical: -4.0),
+                    icon: Icon(
+                      Icons.download,
+                      color: ColorConstants.white,
+                    ),
+                    onPressed: () => _onDownloadTap(),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Align(
+            alignment: Alignment.topLeft,
+            child: Padding(
+              padding: EdgeInsets.all(20.r),
+              child: Container(
+                decoration: BoxDecoration(
+                  color: ColorConstants.black.withOpacity(0.4),
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: Icon(
+                    Icons.arrow_back,
+                    color: ColorConstants.white,
+                  ),
+                  onPressed: _onBackArrowPressed,
+                ),
+              ),
+            ),
+          ),
+          if (_store.isAdmin)
+            Align(
+              alignment: Alignment.topRight,
+              child: Padding(
+                padding: EdgeInsets.all(20.r),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: ColorConstants.black.withOpacity(0.4),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.delete,
+                      color: ColorConstants.white,
+                    ),
+                    onPressed: () => _onCaffDeleteTap(),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   //general methods:------------------------------------------------------------
   void _showSnackBar(String text, [void Function()? failedFunction]) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -224,6 +274,13 @@ class _FileDetailsScreenState extends State<FileDetailsScreen> {
     _store.deleteComment(
       commentId: commentId,
       onSuccess: (response) => _showSnackBar(response.message),
+      onError: (message) => _showSnackBar(message),
+    );
+  }
+
+  void _onDownloadTap() {
+    _store.downloadCaff(
+      onSuccess: () => _showSnackBar(tr('download_success')),
       onError: (message) => _showSnackBar(message),
     );
   }

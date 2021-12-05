@@ -116,9 +116,14 @@ abstract class _RegisterStore with Store {
         onLoginSuccess(loginResponse.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => register(
+          onRegisterSuccess: onRegisterSuccess,
+          onLoginSuccess: onLoginSuccess,
+          onError: onError,
+        ),
       );
     }
 

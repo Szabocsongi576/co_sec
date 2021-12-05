@@ -11,6 +11,9 @@ class ApiUtil {
 
   String? bearerToken;
 
+  String? username;
+  String? password;
+
   void reset() {
     bearerToken = null;
   }

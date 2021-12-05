@@ -65,9 +65,12 @@ abstract class _FileListStore with Store {
         caffList.addAll(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => getCaffFiles(
+          onError: onError,
+        ),
       );
     }
 
@@ -98,9 +101,15 @@ abstract class _FileListStore with Store {
         onSuccess(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => createCaff(
+          userId: userId,
+          resource: resource,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 
@@ -126,9 +135,14 @@ abstract class _FileListStore with Store {
         onSuccess(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => deleteCaff(
+          caffId: caffId,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 

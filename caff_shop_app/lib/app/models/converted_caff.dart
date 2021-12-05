@@ -16,7 +16,7 @@ class ConvertedCaff {
       id: json["id"],
       userId: json["userId"],
       name: json["name"],
-      imageUrl: json["imageUrl"].toString().replaceAll("http://localhost:8080", ''),
+      imageUrl: json["imageUrl"],
     );
   }
 

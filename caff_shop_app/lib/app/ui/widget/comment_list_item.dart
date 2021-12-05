@@ -34,12 +34,19 @@ class CommentListItem extends StatelessWidget {
                 ),
             ],
           ),
-          Padding(
-            padding: EdgeInsets.only(left: 20.r),
-            child: Text(
-              text,
-              style: Theme.of(context).textTheme.bodyText2,
-            ),
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.only(left: 20.r),
+                  child: Text(
+                    text,
+                    textAlign: TextAlign.start,
+                    style: Theme.of(context).textTheme.bodyText2,
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),

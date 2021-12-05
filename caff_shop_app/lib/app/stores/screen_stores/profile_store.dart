@@ -20,6 +20,8 @@ abstract class _ProfileStore with Store {
 
     await Future.delayed(Duration(milliseconds: 500));
     ApiUtil().bearerToken = null;
+    ApiUtil().username = null;
+    ApiUtil().password = null;
     onSuccess();
 
     loadingStore.stackedLoading = false;

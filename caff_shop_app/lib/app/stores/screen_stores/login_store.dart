@@ -95,6 +95,10 @@ abstract class _LoginStore with Store {
       handleDioError(
         error: error,
         onError: onError,
+        failedFunction: () => login(
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 

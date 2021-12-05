@@ -100,6 +100,17 @@ mixin _$FileDetailsStore on _FileDetailsStore, Store {
         commentId: commentId, onSuccess: onSuccess, onError: onError));
   }
 
+  final _$downloadCaffAsyncAction =
+      AsyncAction('_FileDetailsStore.downloadCaff');
+
+  @override
+  Future<void> downloadCaff(
+      {required void Function() onSuccess,
+      required void Function(String) onError}) {
+    return _$downloadCaffAsyncAction
+        .run(() => super.downloadCaff(onSuccess: onSuccess, onError: onError));
+  }
+
   @override
   String toString() {
     return '''

@@ -35,5 +35,6 @@
     "upload": "Feltöltés"
   },
   "add_file": "Válasszon ki egy fájlt!",
-  "refresh": "Újra"
+  "refresh": "Újra",
+  "download_success": "Sikeres letöltés"
 }

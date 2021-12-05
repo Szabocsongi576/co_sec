@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:typed_data';
+
 import 'package:caff_shop_app/app/api/api.dart';
 import 'package:caff_shop_app/app/api/error_handler.dart';
 import 'package:caff_shop_app/app/api/interceptors/add_token_interceptor.dart';
@@ -6,6 +9,7 @@ import 'package:caff_shop_app/app/models/comment_request.dart';
 import 'package:caff_shop_app/app/models/converted_caff.dart';
 import 'package:caff_shop_app/app/models/response.dart';
 import 'package:caff_shop_app/app/models/user.dart';
+import 'package:caff_shop_app/app/services/save_file_service.dart';
 import 'package:caff_shop_app/app/stores/widget_stores/loading_store.dart';
 import 'package:dio/dio.dart';
 import 'package:mobx/mobx.dart';
@@ -50,9 +54,12 @@ abstract class _FileDetailsStore with Store {
         getAllUser(),
       ]);
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: (message) => onError(message, () => init(onError: onError)),
+        failedFunction: () => init(
+          onError: onError,
+        ),
       );
     }
 
@@ -108,9 +115,14 @@ abstract class _FileDetailsStore with Store {
         onSuccess();
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: (message) => onError(message),
+        failedFunction: () => createComment(
+          userId: userId,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 
@@ -136,9 +148,45 @@ abstract class _FileDetailsStore with Store {
         onSuccess(response.data!);
       }
     } on DioError catch (error) {
-      handleDioError(
+      await handleDioError(
         error: error,
         onError: (message) => onError(message),
+        failedFunction: () => deleteComment(
+          commentId: commentId,
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
+      );
+    }
+
+    loadingStore.stackedLoading = false;
+  }
+
+  @action
+  Future<void> downloadCaff({
+    required void Function() onSuccess,
+    required void Function(String) onError,
+  }) async {
+    loadingStore.stackedLoading = true;
+
+    try {
+      Response<Uint8List> response =
+          await Api(interceptors: [AddTokenInterceptor()])
+              .getCaffApi()
+              .downloadCaffById(caff.id);
+
+      if (response.isSuccess()) {
+        await SaveFileService().saveCaff(response.data!, caff.name);
+        onSuccess();
+      }
+    } on DioError catch (error) {
+      await handleDioError(
+        error: error,
+        onError: (message) => onError(message),
+        failedFunction: () => downloadCaff(
+          onSuccess: onSuccess,
+          onError: onError,
+        ),
       );
     }
 
